@@ -105,6 +105,7 @@ export const MASTER_IMAGES = {
 /** Интерьер студии — тёплый мокко-салон (блок «Пространство», «О студии»). */
 export const INTERIOR = heroStudio;
 
-/** Главное фото hero: beauty-портрет (Vogue-стиль). heroStudio — интерьер,
- *  используется в «Пространстве»; interior (старое розовое) больше не нужен. */
-export const HERO_IMAGE = heroModel;
+/** Главное фото hero: интерьер студии (кадр «тёмная стена слева, салон справа»
+ *  идеально ложится под текст). HERO_IMAGE_ALT — beauty-портрет как альтернатива. */
+export const HERO_IMAGE = heroStudio;
+export const HERO_IMAGE_ALT = heroModel;
