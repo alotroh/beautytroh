@@ -4,10 +4,11 @@ import BookingSection from '../components/BookingSection.astro';
 import PackagesSection from '../components/PackagesSection.astro';
 import MasterCard from '../components/MasterCard.astro';
 import Figure from '../components/Figure.astro';
+import { Image } from 'astro:assets';
 import { SERVICES } from '../data/services.mjs';
 import { TEAM } from '../data/team.mjs';
 import { POSTS } from '../data/posts.mjs';
-import { SERVICE_IMAGES, INTERIOR, HAIR_STRIP } from '../data/media.mjs';
+import { SERVICE_IMAGES, INTERIOR, HAIR_STRIP, HERO_IMAGE } from '../data/media.mjs';
 import { websiteSchema, organizationSchema, beautyBusinessSchema } from '../config/schema.mjs';
 
 const teamPreview = TEAM.slice(0, 3);
@@ -35,36 +36,37 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 ---
 
 <BaseLayout seoKey="home" transparentHeader={true} jsonLd={jsonLd}>
-  <!-- 01 · HERO -->
+  <!-- 01 · HERO (editorial, в стиле Vogem: текст слева, фото справа «в край») -->
   <section class="hero theme-dark" aria-labelledby="hero-title">
+    <div class="hero__photo" aria-hidden="true">
+      <Image
+        src={HERO_IMAGE}
+        alt=""
+        widths={[600, 900, 1300, 1700]}
+        sizes="(max-width: 940px) 100vw, 55vw"
+        loading="eager"
+        fetchpriority="high"
+        class="hero__img"
+      />
+      <div class="hero__veil"></div>
+    </div>
+
     <div class="container hero__inner">
       <div class="hero__text">
-        <span class="eyebrow eyebrow--rule">Студия красоты BEAUTYTROH</span>
+        <span class="eyebrow eyebrow--rule"><span class="hero__dot" aria-hidden="true"></span>Студия красоты · Концепт</span>
         <h1 id="hero-title" class="hero__title">
           Красиво, когда <em>сделано хорошо</em>
         </h1>
         <p class="lead hero__lead">
           Сюда приходят не за процедурой, а за <span class="hl">результатом</span> и
-          <span class="hl">работой мастера</span>. Волосы, окрашивание, маникюр, брови и уход за
-          лицом. Спокойно, честно, по делу.
+          <span class="hl">работой мастера</span>. Волосы, окрашивание, маникюр, брови и уход за лицом.
         </p>
         <div class="hero__actions">
-          <a class="btn" href="#booking" data-track="click_booking">
+          <a class="btn hero__cta" href="#booking" data-track="click_booking">
             Записаться <span class="arrow" aria-hidden="true">→</span>
           </a>
           <a class="link-arrow hero__secondary" href="/services/">Посмотреть услуги</a>
         </div>
-      </div>
-
-      <div class="hero__media">
-        <Figure
-          image={INTERIOR}
-          ratio="3/4"
-          eager={true}
-          sizes="(max-width: 940px) 88vw, 40vw"
-          alt="Интерьер студии красоты BEAUTYTROH"
-          class="hero__figure"
-        />
       </div>
     </div>
 
@@ -228,44 +230,74 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 </BaseLayout>
 
 <style>
-  /* -------- HERO (поверх единого фона сайта) -------- */
+  /* -------- HERO (editorial, фото «в край» справа) -------- */
   .hero {
     position: relative;
+    isolation: isolate;
+    overflow: hidden;
     color: var(--ivory);
     padding-top: clamp(9rem, 16vw, 13rem);
     padding-bottom: clamp(3rem, 7vw, 5rem);
-    min-height: clamp(560px, 84vh, 880px);
+    min-height: clamp(600px, 88vh, 920px);
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-  .hero__inner {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: center;
-    gap: clamp(2rem, 5vw, 4.5rem);
+  /* Крупное фото справа, выходит за правый край */
+  .hero__photo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 56%;
+    height: 100%;
+    z-index: -1;
   }
-  .hero__text { max-width: 40rem; }
-  .hero__media { width: 100%; max-width: 420px; margin-left: auto; }
-  .hero__media :global(.fig) {
-    box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.8);
-    animation: heroFloat 8s ease-in-out infinite;
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    animation: heroZoom 18s ease-in-out infinite alternate;
   }
+  /* Веаль слева — фото мягко «растворяется» в мокко-фоне под текстом */
+  .hero__veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(100deg, #241811 4%, rgba(36, 24, 17, 0.72) 30%, rgba(36, 24, 17, 0) 62%),
+      linear-gradient(to top, rgba(28, 19, 12, 0.55), rgba(28, 19, 12, 0) 32%),
+      linear-gradient(to bottom, rgba(28, 19, 12, 0.55), rgba(28, 19, 12, 0) 22%);
+  }
+  .hero__inner { flex: 1; display: flex; align-items: center; }
+  .hero__text { max-width: 34rem; }
+  .hero__dot {
+    position: absolute;
+    left: 0.6rem;
+    top: 0.35em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--clay);
+    box-shadow: 0 0 0 0 rgba(189, 122, 69, 0.6);
+    animation: heroPulse 2.6s ease-out infinite;
+  }
+  .eyebrow--rule .hero__dot { left: 0; }
+  .eyebrow--rule { padding-left: 1.6rem; }
+  .eyebrow--rule::before { display: none; }
   .hero__title {
     color: var(--ivory);
-    margin: 1.6rem 0;
-    max-width: 18ch;
-    font-size: clamp(2.7rem, 1.5rem + 5vw, 5.4rem);
-    line-height: 1.06;
+    margin: 1.5rem 0;
+    max-width: 15ch;
+    font-size: clamp(3rem, 1.6rem + 6vw, 6.4rem);
+    line-height: 1.02;
     font-weight: 400;
     text-wrap: balance;
   }
-  /* Мерцающий акцент на ключевой строке — «дорогой» блик */
+  /* Мерцающий карамельный акцент на ключевой строке */
   .hero__title em {
     font-style: normal;
     display: block;
-    background: linear-gradient(100deg, var(--clay-soft) 0%, #f7cdd9 45%, var(--clay-soft) 70%);
+    background: linear-gradient(100deg, var(--clay-soft) 0%, #fbe4c4 45%, var(--clay-soft) 70%);
     background-size: 220% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -274,27 +306,30 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
   }
 
   /* Плавный вход элементов hero при загрузке */
-  .hero__text > *,
-  .hero__media { animation: heroIn 0.9s var(--ease) backwards; }
+  .hero__text > * { animation: heroIn 0.9s var(--ease) backwards; }
   .hero__text .eyebrow { animation-delay: 0.1s; }
   .hero__title { animation-delay: 0.22s; }
   .hero__lead { animation-delay: 0.38s; }
   .hero__actions { animation-delay: 0.52s; }
-  .hero__media { animation-delay: 0.3s; }
+  .hero__photo { animation: heroIn 1.2s var(--ease) 0.1s backwards; }
   .hero__facts { animation: heroIn 0.9s var(--ease) 0.65s backwards; }
 
   @keyframes heroIn {
     from { opacity: 0; transform: translateY(26px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes heroFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+  @keyframes heroZoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
   }
   @keyframes heroShimmer {
     to { background-position: 220% center; }
   }
-  .hero__lead { color: rgba(247, 240, 239, 0.88); max-width: 52ch; font-size: clamp(1.15rem, 1rem + 0.6vw, 1.5rem); }
+  @keyframes heroPulse {
+    0% { box-shadow: 0 0 0 0 rgba(189, 122, 69, 0.55); }
+    70%, 100% { box-shadow: 0 0 0 10px rgba(189, 122, 69, 0); }
+  }
+  .hero__lead { color: rgba(239, 231, 219, 0.9); max-width: 46ch; font-size: clamp(1.12rem, 1rem + 0.5vw, 1.42rem); }
   .hero__actions {
     display: flex;
     align-items: center;
@@ -389,8 +424,13 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 
   /* -------- RESPONSIVE -------- */
   @media (max-width: 940px) {
-    .hero__inner { grid-template-columns: 1fr; }
-    .hero__media { order: -1; max-width: 320px; margin: 0 0 0.5rem; }
+    .hero__photo { width: 100%; }
+    .hero__veil {
+      background:
+        linear-gradient(to top, rgba(28, 19, 12, 0.88) 12%, rgba(28, 19, 12, 0.35) 55%, rgba(28, 19, 12, 0.5)),
+        linear-gradient(100deg, rgba(36, 24, 17, 0.8), rgba(36, 24, 17, 0.4));
+    }
+    .hero__text { max-width: 100%; }
     .approach__inner { grid-template-columns: 1fr; }
     .space__inner { grid-template-columns: 1fr; }
     .space__media { max-width: 520px; }
@@ -404,6 +444,5 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     .dir-row__arrow { display: none; }
     .team-preview { grid-template-columns: 1fr; max-width: 340px; }
     .gallery__cell--tall { grid-row: span 1; }
-    .hero__media { display: none; }
   }
 </style>

@@ -103,3 +103,7 @@ export const MASTER_IMAGES = {
 
 /** Интерьер студии. */
 export const INTERIOR = interior;
+
+/** Главное фото hero (в стиле Vogem — крупный тёплый кадр справа «в край»).
+ *  Заменяется на сгенерированное тёплое фото под мокко-палитру. */
+export const HERO_IMAGE = portrait3;
