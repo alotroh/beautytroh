@@ -256,7 +256,7 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
+    object-position: right center;
     animation: heroZoom 18s ease-in-out infinite alternate;
   }
   /* Веаль слева — фото мягко «растворяется» в мокко-фоне под текстом */
@@ -264,9 +264,9 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(100deg, #241811 4%, rgba(36, 24, 17, 0.72) 30%, rgba(36, 24, 17, 0) 62%),
-      linear-gradient(to top, rgba(28, 19, 12, 0.55), rgba(28, 19, 12, 0) 32%),
-      linear-gradient(to bottom, rgba(28, 19, 12, 0.55), rgba(28, 19, 12, 0) 22%);
+      linear-gradient(100deg, #241811 0%, rgba(36, 24, 17, 0.5) 8%, rgba(36, 24, 17, 0) 20%),
+      linear-gradient(to top, rgba(28, 19, 12, 0.4), rgba(28, 19, 12, 0) 20%),
+      linear-gradient(to bottom, rgba(28, 19, 12, 0.45), rgba(28, 19, 12, 0) 16%);
   }
   .hero__inner { flex: 1; display: flex; align-items: center; }
   .hero__text { max-width: 34rem; }

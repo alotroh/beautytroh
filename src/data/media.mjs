@@ -23,7 +23,8 @@ import portrait2 from '../assets/media/portrait-2.jpg';
 import portrait3 from '../assets/media/portrait-3.jpg';
 import portrait4 from '../assets/media/portrait-4.jpg';
 import portrait5 from '../assets/media/portrait-5.jpg';
-import interior from '../assets/media/interior.png';
+import heroStudio from '../assets/media/hero-studio.png';
+import heroModel from '../assets/media/hero-model.png';
 
 // Фото карточек окрашивания/бровей/маникюра/лица (Unsplash, свободная лицензия).
 import okrTonirovanie from '../assets/media/stock/okr-tonirovanie.jpg';
@@ -101,9 +102,9 @@ export const MASTER_IMAGES = {
   kira: portrait5,
 };
 
-/** Интерьер студии. */
-export const INTERIOR = interior;
+/** Интерьер студии — тёплый мокко-салон (блок «Пространство», «О студии»). */
+export const INTERIOR = heroStudio;
 
-/** Главное фото hero (в стиле Vogem — крупный тёплый кадр справа «в край»).
- *  Заменяется на сгенерированное тёплое фото под мокко-палитру. */
-export const HERO_IMAGE = portrait3;
+/** Главное фото hero: beauty-портрет (Vogue-стиль). heroStudio — интерьер,
+ *  используется в «Пространстве»; interior (старое розовое) больше не нужен. */
+export const HERO_IMAGE = heroModel;
