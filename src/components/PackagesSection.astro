@@ -1,0 +1,260 @@
+---
+/**
+ * ПАКЕТЫ (БАНДЛЫ) — секция выгодных наборов услуг.
+ * Формат вдохновлён присланным pricing.tsx: тёмная сцена с интерактивным
+ * звёздным полем (магнитится к курсору), карточки с популярным тарифом,
+ * список входящего, крупная цена и выгода. Всё на чистом Astro + ванильном
+ * JS, без React и внешних зависимостей. Данные из src/data/packages.mjs.
+ */
+import { PACKAGES } from '../data/packages.mjs';
+import { formatRub } from '../utils/format.mjs';
+
+interface Props {
+  heading?: string;
+  text?: string;
+}
+const {
+  heading = 'Пакеты со скидкой',
+  text = 'Несколько услуг в один визит по цене выгоднее, чем по отдельности. Готовые наборы под частые задачи.',
+} = Astro.props;
+
+// Звёзды генерируются на сервере со случайными позициями.
+const stars = Array.from({ length: 90 }, () => ({
+  top: +(Math.random() * 100).toFixed(2),
+  left: +(Math.random() * 100).toFixed(2),
+  size: +(1 + Math.random() * 2).toFixed(2),
+  delay: +(Math.random() * 5).toFixed(2),
+  dur: +(2 + Math.random() * 3).toFixed(2),
+}));
+---
+
+<section class="packages" id="packages" aria-labelledby="packages-title" data-packages>
+  <div class="packages__stars" aria-hidden="true" data-stars>
+    {stars.map((s) => (
+      <span style={`top:${s.top}%;left:${s.left}%;width:${s.size}px;height:${s.size}px;--delay:${s.delay}s;--dur:${s.dur}s`}></span>
+    ))}
+  </div>
+
+  <div class="container packages__inner">
+    <div class="section-head reveal">
+      <span class="index-num">Пакеты · выгода</span>
+      <h2 id="packages-title">{heading}</h2>
+      <p class="muted packages__lead">{text}</p>
+    </div>
+
+    <div class="packages__grid">
+      {PACKAGES.map((p) => {
+        const save = (p.oldPrice || 0) - (p.price || 0);
+        return (
+          <article class={`pkg reveal ${p.popular ? 'pkg--popular' : ''}`}>
+            {p.popular && <span class="pkg__badge">Выгоднее всего</span>}
+            <div class="pkg__head">
+              <h3 class="pkg__name">{p.name}</h3>
+              <p class="pkg__tagline muted">{p.tagline}</p>
+            </div>
+
+            <div class="pkg__price">
+              {p.oldPrice > p.price && <span class="pkg__old">{formatRub(p.oldPrice)}</span>}
+              <span class="pkg__now">{formatRub(p.price)}</span>
+              {save > 0 && <span class="pkg__save">выгода {formatRub(save)}</span>}
+            </div>
+
+            <ul class="pkg__list">
+              {p.includes.map((item) => (
+                <li>
+                  <svg class="pkg__check" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+                    <path d="M5 10.5l3.2 3.2L15.5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+
+            <a
+              class={`btn pkg__cta ${p.popular ? 'btn--accent' : 'btn--ghost'}`}
+              href="#booking"
+              data-track="click_booking"
+            >
+              Записаться на пакет <span class="arrow" aria-hidden="true">→</span>
+            </a>
+          </article>
+        );
+      })}
+    </div>
+
+    <p class="packages__note muted">
+      Состав и цены пакетов концептуальные. Их легко изменить под реальный салон в одном файле.
+    </p>
+  </div>
+</section>
+
+<style>
+  .packages {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: var(--section-y);
+    color: var(--ink);
+  }
+  /* Затемняющая подложка, чтобы звёзды и карточки читались как отдельная сцена */
+  .packages::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(80% 60% at 50% 0%, rgba(20, 2, 14, 0.55), rgba(20, 2, 14, 0) 70%),
+      linear-gradient(rgba(16, 2, 12, 0.35), rgba(16, 2, 12, 0.35));
+  }
+
+  /* Звёздное поле */
+  .packages__stars { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+  .packages__stars span {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--clay-soft);
+    opacity: 0;
+    animation: twinkle var(--dur, 3s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+    transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform, opacity;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.9; }
+  }
+
+  .packages__lead { max-width: 56ch; }
+
+  .packages__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.25rem, 3vw, 2rem);
+    align-items: stretch;
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  .pkg {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: clamp(1.75rem, 3vw, 2.5rem);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(247, 240, 239, 0.14);
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    transition: transform 0.5s var(--ease), border-color 0.5s var(--ease);
+  }
+  .pkg:hover { transform: translateY(-4px); }
+  .pkg--popular {
+    border-color: var(--clay-soft);
+    background: rgba(226, 163, 183, 0.12);
+    box-shadow: 0 30px 80px -40px rgba(226, 163, 183, 0.7);
+  }
+  @media (min-width: 900px) {
+    .pkg--popular { transform: translateY(-16px); }
+    .pkg--popular:hover { transform: translateY(-22px); }
+  }
+  .pkg__badge {
+    position: absolute;
+    top: 0;
+    left: clamp(1.75rem, 3vw, 2.5rem);
+    transform: translateY(-50%);
+    background: var(--clay);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4em 0.9em;
+    border-radius: 999px;
+  }
+
+  .pkg__name { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem); }
+  .pkg__tagline { margin-top: 0.5rem; font-size: 0.98rem; }
+
+  .pkg__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.9rem; }
+  .pkg__old {
+    font-size: 1.1rem;
+    color: var(--ink-muted);
+    text-decoration: line-through;
+    text-decoration-color: rgba(247, 240, 239, 0.4);
+  }
+  .pkg__now { font-family: var(--font-display); font-size: clamp(2.4rem, 1.8rem + 2vw, 3.2rem); font-weight: 400; line-height: 1; color: var(--ink); }
+  .pkg__save {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: var(--clay-soft);
+    border: 1px solid rgba(226, 163, 183, 0.4);
+    padding: 0.3em 0.7em;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pkg__list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.85rem; }
+  .pkg__list li { display: flex; align-items: flex-start; gap: 0.7rem; color: var(--ink-soft); }
+  .pkg__check { flex: none; margin-top: 2px; color: var(--clay-soft); }
+
+  .pkg__cta { margin-top: auto; justify-content: center; }
+
+  .packages__note { margin-top: 2rem; font-size: 0.85rem; max-width: 60ch; }
+
+  @media (max-width: 900px) {
+    .packages__grid { grid-template-columns: 1fr; max-width: 460px; }
+    .pkg--popular { order: -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .packages__stars span { animation: none; opacity: 0.5; transition: none; }
+    .pkg, .pkg:hover, .pkg--popular:hover { transition: none; }
+  }
+</style>
+
+<script>
+  // Магнитное звёздное поле: звёзды мягко тянутся к курсору (как в pricing.tsx),
+  // но на чистом JS. Позиции считаем один раз, в mousemove только пишем transform.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('[data-packages]').forEach((section) => {
+    const layer = section.querySelector<HTMLElement>('[data-stars]');
+    if (!layer || reduce) return;
+    const stars = Array.from(layer.children) as HTMLElement[];
+    let bases: { x: number; y: number }[] = [];
+    const measure = () => {
+      const rect = layer.getBoundingClientRect();
+      bases = stars.map((s) => {
+        const r = s.getBoundingClientRect();
+        return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top };
+      });
+    };
+    measure();
+    window.addEventListener('resize', measure, { passive: true });
+
+    let raf = 0;
+    const radius = 260;
+    section.addEventListener('mousemove', (e) => {
+      const rect = layer.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        for (let i = 0; i < stars.length; i++) {
+          const b = bases[i];
+          const dx = mx - b.x;
+          const dy = my - b.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < radius) {
+            const f = (1 - dist / radius) * 0.45;
+            stars[i].style.transform = `translate(${dx * f}px, ${dy * f}px)`;
+          } else {
+            stars[i].style.transform = '';
+          }
+        }
+      });
+    }, { passive: true });
+    section.addEventListener('mouseleave', () => {
+      cancelAnimationFrame(raf);
+      for (const s of stars) s.style.transform = '';
+    });
+  });
+</script>

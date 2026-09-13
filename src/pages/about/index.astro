@@ -1,0 +1,129 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import Figure from '../../components/Figure.astro';
+import { INTERIOR, SERVICE_IMAGES } from '../../data/media.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'О студии', href: '/about/' },
+];
+
+const principles = [
+  { t: 'Работа, которую видно', d: 'Мы оцениваем результат по тому, как он выглядит через неделю и месяц, а не только в день визита. Отсюда и диагностика до процедуры, и честный разговор о том, что реально получится.' },
+  { t: 'Понятный результат', d: 'Вы уходите, понимая, что было сделано и почему. Никаких «доверьтесь профессионалу» без объяснений. Мастер проговаривает решение и уход.' },
+  { t: 'Сдержанная эстетика', d: 'Меньше декора и визуального шума, больше внимания к качеству. Дорогое ощущение это про уместность и чистоту, а не про блеск и золото.' },
+  { t: 'Комфорт визита', d: 'Продуманная логистика и тишина: вы не сидите в проходе и не спешите. Визит рассчитан так, чтобы его хватило без ощущения конвейера.' },
+  { t: 'Внимание к деталям', d: 'От подготовки рабочего места до финального зеркала. Мелочи складываются в то самое ощущение, ради которого возвращаются.' },
+  { t: 'Профильные специалисты', d: 'Каждое направление ведёт свой мастер. Мы не делаем «всё для всех». Делаем то, за что можем отвечать.' },
+];
+---
+
+<BaseLayout seoKey="about">
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">О студии</span>
+      <h1>Пространство, собранное вокруг результата</h1>
+      <p class="lead page-hero__lead">
+        BEAUTYTROH это про работу, которую видно, и про обстановку, в которой её удобно
+        делать. Ниже рассказываем, во что мы верим и как это отражается на вашем визите.
+      </p>
+      <p class="page-hero__concept">Концепт-проект для портфолио. История и данные демонстрационные.</p>
+    </div>
+  </section>
+
+  <!-- Тезис -->
+  <section class="section about-statement">
+    <div class="container">
+      <p class="about-statement__text reveal">
+        Хорошая работа не нуждается в громких словах. Она видна на <span class="hl">отросшей длине</span>,
+        в <span class="hl">ровном покрытии</span> и в том, что клиент возвращается, <span>потому что результат
+        оказался именно таким, как договаривались.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Принципы -->
+  <section class="section section--alt">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="index-num">01 · Во что мы верим</span>
+        <h2>Шесть принципов студии</h2>
+      </div>
+      <div class="principles">
+        {principles.map((p, i) => (
+          <div class="principle reveal">
+            <span class="principle__num">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{p.t}</h3>
+            <p class="muted">{p.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Пространство -->
+  <section class="section space-block">
+    <div class="container space-block__inner">
+      <div class="space-block__text reveal">
+        <span class="index-num">02 · Пространство</span>
+        <h2>Обстановка как часть работы</h2>
+        <p class="lead">Спокойный свет, приглушённые тона, продуманные зоны для каждого направления.</p>
+        <p class="muted">
+          Интерьер решён в тёплой, сдержанной палитре, он не спорит с результатом, а поддерживает
+          его. Здесь комфортно провести и двадцать минут на коррекцию, и несколько часов на сложное
+          окрашивание.
+        </p>
+        <div class="space-block__links">
+          <a class="link-arrow" href="/team/">Наши мастера <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="link-arrow" href="/services/">Направления <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+      <div class="space-block__media">
+        <div class="space-block__stack reveal">
+          <Figure image={INTERIOR} ratio="4/5" tone="dark" label="Интерьер" frame="Тёплый свет" sizes="(max-width: 900px) 45vw, 22vw" alt="Интерьер студии BEAUTYTROH, рабочая зона" />
+          <Figure image={SERVICE_IMAGES.manikyur} ratio="4/5" tone="warm" label="Детали" frame="Материалы и текстуры" sizes="(max-width: 900px) 45vw, 22vw" alt="Детали пространства студии BEAUTYTROH, материалы и текстуры" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <BookingSection heading="Познакомиться лично" text="Лучший способ понять студию это прийти. Запишитесь на удобное время, а мы поможем подобрать мастера под задачу." />
+</BaseLayout>
+
+<style>
+  .about-statement__text {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 1.2rem + 2.4vw, 3rem);
+    line-height: 1.22;
+    font-weight: 500;
+    max-width: 34ch;
+  }
+  .about-statement__text span { color: var(--ink-muted); }
+
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+  }
+  .principle { border-top: 1px solid var(--line); padding-top: 1.25rem; }
+  .principle__num { font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.14em; color: var(--accent-ink); }
+  .principle h3 { margin: 0.6rem 0 0.6rem; font-size: 1.3rem; }
+
+  .space-block__inner { display: grid; grid-template-columns: 1fr 0.95fr; gap: clamp(2.5rem, 6vw, 5rem); align-items: center; }
+  .space-block__text .lead { margin: 1rem 0; }
+  .space-block__links { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1.75rem; }
+  .space-block__stack { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .space-block__stack :global(.fig):nth-child(2) { margin-top: 2.5rem; }
+
+  @media (max-width: 900px) {
+    .principles { grid-template-columns: 1fr 1fr; }
+    .space-block__inner { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .principles { grid-template-columns: 1fr; }
+    .space-block__stack :global(.fig):nth-child(2) { margin-top: 0; }
+  }
+</style>

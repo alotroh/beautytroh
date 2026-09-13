@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SERVICES } from '../data/services.mjs';
+---
+
+<BaseLayout seoKey="notFound" showStickyCta={false}>
+  <section class="page-hero notfound">
+    <div class="container">
+      <span class="eyebrow">Ошибка 404</span>
+      <h1>Такой страницы нет</h1>
+      <p class="lead page-hero__lead">
+        Возможно, ссылка устарела или в адресе опечатка. Вернитесь на главную или выберите
+        направление ниже.
+      </p>
+      <div class="page-hero__actions">
+        <a class="btn" href="/">На главную <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="link-arrow" href="/services/">Все услуги</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <span class="index-num">Направления</span>
+      <ul class="notfound__links">
+        {SERVICES.map((s) => (
+          <li><a class="link-arrow" href={`/services/${s.slug}/`}>{s.title} <span class="arrow" aria-hidden="true">→</span></a></li>
+        ))}
+        <li><a class="link-arrow" href="/blog/">Журнал <span class="arrow" aria-hidden="true">→</span></a></li>
+        <li><a class="link-arrow" href="/contacts/">Контакты <span class="arrow" aria-hidden="true">→</span></a></li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound__links {
+    list-style: none; padding: 0; margin: 1.5rem 0 0;
+    display: flex; flex-wrap: wrap; gap: 1.25rem 2.5rem;
+  }
+</style>

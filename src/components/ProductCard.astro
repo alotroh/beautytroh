@@ -1,0 +1,69 @@
+---
+/**
+ * Товар-карточка услуги: изображение, название, цена, короткое описание.
+ * Стиль «каталога» (как маркетплейс), но в палитре бренда. Кликается целиком
+ * и ведёт на страницу направления.
+ */
+import Figure from './Figure.astro';
+
+interface Props {
+  title: string;
+  price: string;
+  desc?: string;
+  duration?: string;
+  href: string;
+  tone?: string;
+  label?: string;
+  image?: ImageMetadata;
+  images?: ImageMetadata[];
+  position?: string;
+}
+const { title, price, desc, duration, href, tone = 'warm', label, image, images, position = 'center' } = Astro.props;
+---
+
+<a class="product" href={href} data-track="click_service">
+  <div class="product__media">
+    <Figure image={image} images={images} position={position} ratio="4/5" tone={tone} label={label} sizes="(max-width: 720px) 45vw, 22vw" alt={`${title}. ${desc ?? ''}`} />
+  </div>
+  <div class="product__body">
+    <h3 class="product__title">{title}</h3>
+    <div class="product__meta">
+      <span class="product__price">{price}</span>
+      {duration && <span class="product__dur muted">{duration}</span>}
+    </div>
+    {desc && <p class="product__desc muted">{desc}</p>}
+  </div>
+</a>
+
+<style>
+  .product {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    color: var(--ink);
+  }
+  .product__media {
+    overflow: hidden;
+    border-radius: 6px;
+    transition: transform 0.5s var(--ease);
+  }
+  .product:hover .product__media { transform: translateY(-4px); }
+  .product__body { display: grid; gap: 0.35rem; }
+  .product__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+  .product__meta { display: flex; align-items: baseline; gap: 0.9rem; margin-top: 0.15rem; }
+  .product__price { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--ink); }
+  .product__dur { font-size: 0.82rem; }
+  .product__desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

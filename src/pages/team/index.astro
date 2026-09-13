@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import MasterCard from '../../components/MasterCard.astro';
+import { TEAM } from '../../data/team.mjs';
+import { getService } from '../../data/services.mjs';
+import { personSchema } from '../../config/schema.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Мастера', href: '/team/' },
+];
+
+const jsonLd = TEAM.map((m) => personSchema(m));
+---
+
+<BaseLayout seoKey="team" jsonLd={jsonLd}>
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">Команда</span>
+      <h1>Мастера студии</h1>
+      <p class="lead page-hero__lead">
+        Небольшая команда профильных специалистов: каждый ведёт своё направление и отвечает
+        за результат. Ниже видно, чем занимается каждый мастер и как подходит к работе.
+      </p>
+      <p class="page-hero__concept">Персоны концептуальные, для демонстрации. Заменяются на реальную команду.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="team-grid">
+        {TEAM.map((m) => {
+          const svc = m.services?.[0] ? getService(m.services[0]) : null;
+          return (
+            <div class="team-item reveal">
+              <MasterCard master={m} detailed={true} />
+              {svc && (
+                <a class="link-arrow team-item__link" href={`/services/${svc.slug}/`}>
+                  Направление: {svc.title} <span class="arrow" aria-hidden="true">→</span>
+                </a>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <BookingSection heading="Записаться к мастеру" text="Напишите, какая задача. Поможем выбрать специалиста и удобное время. Если не уверены, к кому, подскажем на месте." />
+</BaseLayout>
+
+<style>
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 3rem);
+  }
+  .team-item { display: grid; gap: 1rem; align-content: start; }
+  .team-item__link { justify-self: start; font-size: 0.9rem; }
+  @media (max-width: 900px) { .team-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .team-grid { grid-template-columns: 1fr; max-width: 360px; } }
+</style>

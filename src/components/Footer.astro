@@ -1,0 +1,146 @@
+---
+/**
+ * Подвал. Дублирует навигацию обычными HTML-ссылками (защита от orphan-страниц)
+ * и показывает только те контакты, что заданы в config.
+ */
+import { SITE, NAV, CONTACTS, BUSINESS } from '../config/site.mjs';
+import { SERVICES } from '../data/services.mjs';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer theme-dark">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <span class="site-footer__name">{SITE.brand}</span>
+      <p class="muted site-footer__tag">
+        {SITE.category}: волосы, окрашивание, маникюр, брови и уход за лицом.
+      </p>
+      {SITE.isConcept && (
+        <span class="site-footer__concept">Концепт-проект. Бизнес-данные заглушки.</span>
+      )}
+    </div>
+
+    <nav class="site-footer__col" aria-label="Услуги в подвале">
+      <span class="site-footer__label">Услуги</span>
+      <ul>
+        {SERVICES.map((s) => (
+          <li><a href={`/services/${s.slug}/`}>{s.title}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Разделы в подвале">
+      <span class="site-footer__label">Студия</span>
+      <ul>
+        <li><a href="/">Главная</a></li>
+        {NAV.filter((n) => n.href !== '/services/').map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-footer__col">
+      <span class="site-footer__label">Связь</span>
+      <ul>
+        {CONTACTS.phoneDisplay && (
+          <li><a href={`tel:${CONTACTS.phoneRaw}`} data-track="click_phone">{CONTACTS.phoneDisplay}</a></li>
+        )}
+        {CONTACTS.telegram && (
+          <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram</a></li>
+        )}
+        {CONTACTS.whatsapp && (
+          <li><a href={CONTACTS.whatsapp} rel="nofollow noopener" target="_blank" data-track="click_whatsapp">WhatsApp</a></li>
+        )}
+        {CONTACTS.email && (
+          <li><a href={`mailto:${CONTACTS.email}`}>{CONTACTS.email}</a></li>
+        )}
+      </ul>
+      <p class="site-footer__hours muted">
+        {BUSINESS.openingHoursDisplay.map((h) => (
+          <span>{h.label}: {h.value}<br /></span>
+        ))}
+      </p>
+    </div>
+  </div>
+
+  <div class="container site-footer__bottom">
+    <span class="muted">© {year} {SITE.brand}. Все права защищены.</span>
+    <a class="muted" href="#top">Наверх ↑</a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: rgba(18, 2, 14, 0.55);
+    backdrop-filter: blur(6px);
+    color: var(--ivory);
+    padding-block: clamp(3rem, 7vw, 5rem) 2rem;
+    border-top: 1px solid rgba(247, 240, 239, 0.1);
+  }
+  .site-footer__inner {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+    gap: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(247, 240, 239, 0.12);
+  }
+  .site-footer__name {
+    font-family: var(--font-body);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+  }
+  .site-footer__tag {
+    margin-top: 0.9rem;
+    max-width: 32ch;
+    font-size: 0.95rem;
+  }
+  .site-footer__concept {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--clay-soft);
+    border: 1px solid rgba(226, 163, 183, 0.35);
+    padding: 0.35em 0.7em;
+    border-radius: var(--radius);
+  }
+  .site-footer__label {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--clay-soft);
+    margin-bottom: 1.2rem;
+  }
+  .site-footer__col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .site-footer__col a {
+    font-size: 0.98rem;
+    color: rgba(247, 240, 239, 0.8);
+    transition: color 0.3s var(--ease);
+  }
+  .site-footer__col a:hover { color: var(--ivory); }
+  .site-footer__hours {
+    margin-top: 1.4rem;
+    font-size: 0.9rem;
+    line-height: 1.9;
+  }
+  .site-footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 1.5rem;
+    font-size: 0.85rem;
+  }
+  @media (max-width: 900px) {
+    .site-footer__inner { grid-template-columns: 1fr 1fr; gap: 2.25rem; }
+  }
+  @media (max-width: 560px) {
+    .site-footer__inner { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BEAUTYTROH">
+  <rect width="64" height="64" rx="12" fill="#310527"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="11.25" fill="none" stroke="#a8506e" stroke-opacity="0.6" stroke-width="1.5"/>
+  <text x="32" y="44" text-anchor="middle"
+        font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif"
+        font-size="40" font-weight="600" fill="#f7f0ef">B</text>
+</svg>

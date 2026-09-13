@@ -1,0 +1,153 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import { CONTACTS, BUSINESS, SITE } from '../../config/site.mjs';
+import { beautyBusinessSchema } from '../../config/schema.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Контакты', href: '/contacts/' },
+];
+
+const jsonLd = [beautyBusinessSchema({ image: '/images/og-cover.svg' })];
+---
+
+<BaseLayout seoKey="contacts" jsonLd={jsonLd}>
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">Контакты</span>
+      <h1>Как связаться и записаться</h1>
+      <p class="lead page-hero__lead">
+        Самый быстрый способ записаться: написать в мессенджер или позвонить. Ответим, поможем
+        выбрать мастера и подберём удобное время.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container contacts">
+      <div class="contacts__info">
+        <div class="contacts__block reveal">
+          <span class="contacts__label">Связь</span>
+          <ul class="contacts__list">
+            {CONTACTS.phoneDisplay && (
+              <li><a href={`tel:${CONTACTS.phoneRaw}`} data-track="click_phone">{CONTACTS.phoneDisplay}</a><span class="muted"> · телефон</span></li>
+            )}
+            {CONTACTS.telegram && (
+              <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram</a></li>
+            )}
+            {CONTACTS.whatsapp && (
+              <li><a href={CONTACTS.whatsapp} rel="nofollow noopener" target="_blank" data-track="click_whatsapp">WhatsApp</a></li>
+            )}
+            {CONTACTS.email && (
+              <li><a href={`mailto:${CONTACTS.email}`}>{CONTACTS.email}</a></li>
+            )}
+          </ul>
+        </div>
+
+        <div class="contacts__block reveal">
+          <span class="contacts__label">Часы работы</span>
+          <ul class="contacts__hours">
+            {BUSINESS.openingHoursDisplay.map((h) => (
+              <li><span class="contacts__day">{h.label}</span><span class="contacts__time">{h.value}</span></li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="contacts__block reveal">
+          <span class="contacts__label">Локация</span>
+          <p class="contacts__address">{BUSINESS.address.display}</p>
+          {SITE.isConcept && (
+            <p class="muted contacts__concept-note">
+              BEAUTYTROH это концепт-проект. Реальный адрес и карта появляются здесь при открытии
+              студии; все данные меняются в одном конфиге.
+            </p>
+          )}
+        </div>
+
+        <a class="btn contacts__cta" href="#booking" data-track="click_booking">Записаться <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+
+      <div class="contacts__map reveal" role="img" aria-label="Карта расположения студии, концепт: точная локация уточняется">
+        <div class="map-plate">
+          <span class="map-plate__pin" aria-hidden="true"></span>
+          <span class="map-plate__label">Локация уточняется</span>
+          <span class="map-plate__sub">Здесь будет интерактивная карта</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <BookingSection />
+</BaseLayout>
+
+<style>
+  .contacts {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .contacts__block { margin-bottom: 2.5rem; }
+  .contacts__label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: 1rem;
+  }
+  .contacts__list, .contacts__hours { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.7rem; }
+  .contacts__list a {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--ink);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease);
+  }
+  .contacts__list a:hover { border-color: var(--accent); }
+  .contacts__hours li { display: flex; justify-content: space-between; gap: 1.5rem; max-width: 320px; padding-bottom: 0.5rem; border-bottom: 1px solid var(--line-soft); }
+  .contacts__day { color: var(--ink-soft); }
+  .contacts__time { color: var(--ink); font-weight: 500; }
+  .contacts__address { font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); max-width: 30ch; }
+  .contacts__concept-note { margin-top: 0.9rem; font-size: 0.9rem; max-width: 42ch; }
+  .contacts__cta { margin-top: 0.5rem; }
+
+  /* Плашка карты — часть визуальной системы, не серый квадрат */
+  .contacts__map { width: 100%; }
+  .map-plate {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    gap: 0.4rem;
+    color: rgba(247, 240, 239, 0.85);
+    background-color: var(--espresso);
+    background-image:
+      radial-gradient(120% 120% at 30% 20%, rgba(226, 163, 183, 0.22), rgba(226, 163, 183, 0) 60%),
+      linear-gradient(rgba(247, 240, 239, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(247, 240, 239, 0.06) 1px, transparent 1px),
+      linear-gradient(150deg, #21031a, #39051f);
+    background-size: auto, 40px 40px, 40px 40px, auto;
+    box-shadow: inset 0 0 0 1px rgba(247, 240, 239, 0.1);
+  }
+  .map-plate__pin {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--clay);
+    box-shadow: 0 0 0 6px rgba(168, 80, 110, 0.25);
+    margin: 0 auto 0.5rem;
+  }
+  .map-plate__label { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--ivory); }
+  .map-plate__sub { font-size: 0.85rem; color: rgba(247, 240, 239, 0.55); }
+
+  @media (max-width: 860px) {
+    .contacts { grid-template-columns: 1fr; }
+  }
+</style>

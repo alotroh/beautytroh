@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import Figure from '../../components/Figure.astro';
+import { POSTS } from '../../data/posts.mjs';
+import { SERVICE_IMAGES } from '../../data/media.mjs';
+import { formatDateRu } from '../../utils/format.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Журнал', href: '/blog/' },
+];
+
+const [featured, ...rest] = POSTS;
+---
+
+<BaseLayout seoKey="blog">
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">Журнал</span>
+      <h1>О красоте понятно и по делу</h1>
+      <p class="lead page-hero__lead">
+        Материалы, которые помогают принять решение до визита: как выбрать окрашивание,
+        подготовить волосы, подобрать форму бровей и ухаживать за маникюром. Пишут мастера студии.
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <!-- Главная статья -->
+      <a class="feature-post reveal" href={`/blog/${featured.slug}/`}>
+        <div class="feature-post__media">
+          <Figure image={(SERVICE_IMAGES as Record<string, ImageMetadata>)[featured.relatedService]} ratio="16/10" tone={featured.figure?.tone || 'warm'} label={featured.category} sizes="(max-width: 860px) 92vw, 50vw" alt={`${featured.title}, материал журнала BEAUTYTROH`} />
+        </div>
+        <div class="feature-post__text">
+          <span class="feature-post__cat">{featured.category}</span>
+          <h2 class="feature-post__title">{featured.title}</h2>
+          <p class="muted feature-post__excerpt">{featured.description}</p>
+          <span class="feature-post__meta muted">
+            <time datetime={featured.datePublished}>{formatDateRu(featured.datePublished)}</time> · {featured.readingTime}
+          </span>
+        </div>
+      </a>
+
+      <!-- Остальные -->
+      <div class="post-grid">
+        {rest.map((p) => (
+          <a class="post-card reveal" href={`/blog/${p.slug}/`}>
+            <span class="post-card__cat">{p.category}</span>
+            <h3 class="post-card__title">{p.title}</h3>
+            <p class="muted post-card__excerpt">{p.description}</p>
+            <span class="post-card__meta muted">
+              <time datetime={p.datePublished}>{formatDateRu(p.datePublished)}</time> · {p.readingTime}
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <BookingSection heading="От чтения к записи" text="Разобрались, что вам нужно? Запишитесь, и на месте мастер уточнит детали и подберёт процедуру." />
+</BaseLayout>
+
+<style>
+  .feature-post {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-bottom: clamp(2.5rem, 6vw, 4rem);
+    margin-bottom: clamp(2.5rem, 6vw, 4rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .feature-post__cat, .post-card__cat {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--accent-ink);
+  }
+  .feature-post__title { margin: 0.7rem 0 1rem; }
+  .feature-post__excerpt { max-width: 48ch; }
+  .feature-post__meta, .post-card__meta { display: block; margin-top: 1rem; font-size: 0.82rem; }
+
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .post-card {
+    display: grid; gap: 0.6rem; align-content: start;
+    padding-top: 1.25rem; border-top: 1px solid var(--line);
+    transition: border-color 0.3s var(--ease);
+  }
+  .post-card:hover { border-color: var(--accent); }
+  .post-card__title { font-size: 1.5rem; margin-top: 0.15rem; }
+  .post-card__excerpt { font-size: 0.96rem; }
+
+  @media (max-width: 860px) {
+    .feature-post { grid-template-columns: 1fr; }
+    .feature-post__media { max-width: 520px; }
+    .post-grid { grid-template-columns: 1fr; max-width: 560px; }
+  }
+</style>

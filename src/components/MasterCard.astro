@@ -1,0 +1,51 @@
+---
+/**
+ * Карточка мастера — editorial-столбец (портрет + имя + специализация),
+ * а не типовая «карточка». Используется на /team/ и страницах услуг.
+ * `detailed` — показывать абзац о подходе (для страницы команды).
+ */
+import Figure from './Figure.astro';
+import { MASTER_IMAGES } from '../data/media.mjs';
+
+interface Master {
+  id: string;
+  name: string;
+  role: string;
+  specialization: string;
+  approach?: string;
+  figure?: { ratio?: string; tone?: string };
+}
+interface Props {
+  master: Master;
+  detailed?: boolean;
+}
+const { master, detailed = false } = Astro.props;
+const fig = master.figure ?? { ratio: '4/5', tone: 'warm' as const };
+const photo = (MASTER_IMAGES as Record<string, ImageMetadata>)[master.id];
+---
+
+<article class="master">
+  <Figure
+    image={photo}
+    ratio={fig.ratio}
+    tone={fig.tone}
+    position="center top"
+    label={master.role}
+    alt={`Портрет мастера: ${master.name}, ${master.role} студии BEAUTYTROH`}
+    class="master__photo"
+  />
+  <div class="master__body">
+    <span class="eyebrow">{master.role}</span>
+    <h3 class="master__name">{master.name}</h3>
+    <p class="master__spec">{master.specialization}</p>
+    {detailed && master.approach && <p class="master__approach muted">{master.approach}</p>}
+  </div>
+</article>
+
+<style>
+  .master { display: grid; gap: 1.1rem; }
+  .master__body { display: grid; gap: 0.4rem; }
+  .master__name { margin-top: 0.15rem; }
+  .master__spec { color: var(--ink-soft); }
+  .master__approach { margin-top: 0.5rem; font-size: 0.96rem; }
+</style>

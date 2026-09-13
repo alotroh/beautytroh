@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import Figure from '../../components/Figure.astro';
+import { POSTS, getPost, relatedPosts } from '../../data/posts.mjs';
+import { getService } from '../../data/services.mjs';
+import { getMaster } from '../../data/team.mjs';
+import { SERVICE_IMAGES } from '../../data/media.mjs';
+import { articleSchema } from '../../config/schema.mjs';
+import { formatDateRu } from '../../utils/format.mjs';
+
+export function getStaticPaths() {
+  return POSTS.map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const post = getPost(slug);
+if (!post) return Astro.redirect('/404/');
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Журнал', href: '/blog/' },
+  { name: post.title, href: `/blog/${post.slug}/` },
+];
+
+const toc = post.body.filter((b: any) => b.type === 'h2' && b.id).map((b: any) => ({ id: b.id, label: b.text }));
+const service = post.relatedService ? getService(post.relatedService) : null;
+const author = post.authorId ? getMaster(post.authorId) : null;
+const related = relatedPosts(slug, 2);
+
+const jsonLd = [
+  articleSchema({
+    headline: post.title,
+    description: post.description,
+    path: `/blog/${post.slug}/`,
+    image: '/images/og-cover.svg',
+    datePublished: post.datePublished,
+    dateModified: post.dateModified,
+    author: author ? { type: 'Person', name: author.name } : undefined,
+  }),
+];
+---
+
+<BaseLayout
+  title={`${post.title} | Журнал BEAUTYTROH`}
+  description={post.description}
+  path={`/blog/${post.slug}/`}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  <article>
+    <header class="page-hero">
+      <div class="container">
+        <Breadcrumbs items={crumbs} />
+        <span class="eyebrow">Журнал · {post.category}</span>
+        <h1>{post.title}</h1>
+        <p class="lead page-hero__lead">{post.lead}</p>
+        <p class="article__meta">
+          {post.author} · <time datetime={post.datePublished}>{formatDateRu(post.datePublished)}</time> · {post.readingTime}
+        </p>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="container article-hero-media reveal">
+        <Figure image={(SERVICE_IMAGES as Record<string, ImageMetadata>)[post.relatedService]} ratio={post.figure?.ratio || '16/9'} position="center" tone={post.figure?.tone || 'warm'} label={post.figure?.label || post.category} sizes="(max-width: 960px) 92vw, 900px" eager={true} alt={`${post.title}, иллюстрация к материалу BEAUTYTROH`} />
+      </div>
+
+      <div class="container article-layout">
+        <aside class="toc" aria-label="Содержание статьи">
+          <span class="index-num">Содержание</span>
+          <nav>
+            <ol>
+              {toc.map((t: any) => <li><a href={`#${t.id}`}>{t.label}</a></li>)}
+            </ol>
+          </nav>
+        </aside>
+
+        <div class="prose article-body">
+          {post.body.map((b: any) => {
+            if (b.type === 'h2') return <h2 id={b.id}>{b.text}</h2>;
+            if (b.type === 'h3') return <h3>{b.text}</h3>;
+            if (b.type === 'p') return <p>{b.text}</p>;
+            if (b.type === 'quote') return <blockquote>{b.text}</blockquote>;
+            if (b.type === 'ul') return <ul>{b.items.map((it: string) => <li>{it}</li>)}</ul>;
+            if (b.type === 'ol') return <ol>{b.items.map((it: string) => <li>{it}</li>)}</ol>;
+            return null;
+          })}
+
+          {service && (
+            <aside class="related-service">
+              <span class="index-num">По теме</span>
+              <h3>{service.title} в BEAUTYTROH</h3>
+              <p class="muted">{service.summary}</p>
+              <div class="related-service__actions">
+                <a class="btn" href={`/services/${service.slug}/`}>Смотреть направление <span class="arrow" aria-hidden="true">→</span></a>
+                <a class="link-arrow" href="#booking" data-track="article_to_booking">Записаться</a>
+              </div>
+            </aside>
+          )}
+        </div>
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="section section--alt">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="index-num">Читать дальше</span>
+            <h2>Похожие материалы</h2>
+          </div>
+          <div class="related-grid">
+            {related.map((r: any) => (
+              <a class="related-card reveal" href={`/blog/${r.slug}/`}>
+                <span class="related-card__cat">{r.category}</span>
+                <h3 class="related-card__title">{r.title}</h3>
+                <p class="muted related-card__excerpt">{r.description}</p>
+                <span class="related-card__meta muted">{r.readingTime}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+
+  </article>
+
+  <BookingSection
+    heading="От теории к делу"
+    text="Разобрались, что вам нужно? Запишитесь, и мастер уточнит детали и подберёт процедуру под вашу задачу."
+    service={service ? service.slug : ''}
+  />
+</BaseLayout>
+
+<style>
+  .article__meta { color: rgba(247, 240, 239, 0.6); font-size: 0.9rem; margin-top: 1.5rem; }
+  .article-hero-media { max-width: 960px; margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+
+  .article-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  .toc { position: sticky; top: 110px; }
+  .toc nav ol { list-style: none; padding: 0; margin: 0.9rem 0 0; display: grid; gap: 0.65rem; }
+  .toc a { font-size: 0.9rem; color: var(--ink-muted); transition: color 0.3s var(--ease); border-bottom: 1px solid transparent; }
+  .toc a:hover { color: var(--accent-ink); }
+
+  .article-body { margin: 0; }
+
+  .related-service {
+    margin-top: 3rem;
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    background: var(--surface-c);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+  }
+  .related-service h3 { margin: 0.5rem 0 0.6rem; }
+  .related-service__actions { display: flex; align-items: center; gap: 1.75rem; flex-wrap: wrap; margin-top: 1.4rem; }
+
+  .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); max-width: 820px; }
+  .related-card { display: grid; gap: 0.6rem; align-content: start; padding-top: 1.25rem; border-top: 1px solid var(--line); transition: border-color 0.3s var(--ease); }
+  .related-card:hover { border-color: var(--accent); }
+  .related-card__cat { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-ink); }
+  .related-card__title { font-size: 1.4rem; }
+  .related-card__excerpt { font-size: 0.94rem; }
+  .related-card__meta { font-size: 0.82rem; }
+
+  @media (max-width: 860px) {
+    .article-layout { grid-template-columns: 1fr; }
+    .toc { position: static; padding: 1.25rem; background: var(--surface-c); border: 1px solid var(--line-soft); border-radius: var(--radius); }
+    .related-grid { grid-template-columns: 1fr; max-width: 520px; }
+  }
+</style>

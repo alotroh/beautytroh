@@ -1,0 +1,176 @@
+---
+/**
+ * IMAGE SLOT — реальное фото ИЛИ концептуальная заглушка.
+ * ------------------------------------------------------------------
+ * Если передан `image` (ImageMetadata из src/assets), рендерим
+ * оптимизированное фото (astro:assets, webp, адаптивные размеры),
+ * обрезанное по заданному ratio (object-fit: cover). Если фото нет —
+ * аккуратная брендовая плашка в палитре (не серый квадрат). В обоих
+ * случаях aspect-ratio фиксирован → нет сдвига макета (CLS = 0).
+ *
+ * Props:
+ *   image     — ImageMetadata (импорт из src/assets/...); опционально
+ *   ratio     — соотношение сторон, напр. '4/5', '16/9', '1/1'
+ *   position  — object-position для фото (напр. 'center top')
+ *   sizes     — атрибут sizes для адаптива (по умолчанию разумный)
+ *   eager     — приоритетная загрузка (для LCP на первом экране)
+ *   tone      — 'warm' | 'light' | 'dark' (палитра плашки, если фото нет)
+ *   label     — категория в углу
+ *   frame     — короткая подпись у нижнего края
+ *   alt       — описание (обязательно для реального фото)
+ *   class     — доп. классы
+ */
+import { Image } from 'astro:assets';
+
+interface Props {
+  image?: ImageMetadata;
+  images?: ImageMetadata[];
+  ratio?: string;
+  position?: string;
+  sizes?: string;
+  eager?: boolean;
+  tone?: string;
+  label?: string;
+  frame?: string;
+  alt?: string;
+  class?: string;
+}
+const {
+  image,
+  images,
+  ratio = '4/5',
+  position = 'center',
+  sizes = '(max-width: 900px) 90vw, 45vw',
+  eager = false,
+  tone = 'warm',
+  label,
+  frame,
+  alt,
+  class: className = '',
+} = Astro.props;
+const hasSplit = Array.isArray(images) && images.length >= 2;
+---
+
+{hasSplit ? (
+  <figure class={`fig fig--photo fig--split ${className}`} style={`--ratio:${ratio}`}>
+    {images!.slice(0, 2).map((im) => (
+      <Image
+        src={im}
+        alt={alt || label || 'Фотография студии BEAUTYTROH'}
+        widths={[300, 500, 700]}
+        sizes="(max-width: 720px) 45vw, 20vw"
+        loading={eager ? 'eager' : 'lazy'}
+        style={`object-position:${position}`}
+      />
+    ))}
+  </figure>
+) : image ? (
+  <figure class={`fig fig--photo ${className}`} style={`--ratio:${ratio}`}>
+    <Image
+      src={image}
+      alt={alt || label || 'Фотография студии BEAUTYTROH'}
+      widths={[400, 700, 1000, 1400]}
+      sizes={sizes}
+      loading={eager ? 'eager' : 'lazy'}
+      {...(eager ? { fetchpriority: 'high' } : {})}
+      style={`object-position:${position}`}
+    />
+  </figure>
+) : (
+  <figure
+    class={`fig fig--${tone} ${className}`}
+    style={`--ratio:${ratio}`}
+    role="img"
+    aria-label={alt || label || 'Изображение студии BEAUTYTROH'}
+  >
+    <div class="fig__plate" aria-hidden="true">
+      <span class="fig__mark">B</span>
+      {label && <span class="fig__label">{label}</span>}
+      {frame && <span class="fig__frame-note">{frame}</span>}
+    </div>
+  </figure>
+)}
+
+<style>
+  .fig {
+    position: relative;
+    margin: 0;
+    width: 100%;
+    aspect-ratio: var(--ratio, 4 / 5);
+    border-radius: var(--radius);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .fig--photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Две фотки рядом в одном поле */
+  .fig--split { display: flex; gap: 2px; }
+  .fig--split :global(img) { width: 50%; height: 100%; }
+  .fig__plate {
+    position: absolute;
+    inset: 0;
+    background-size: cover, cover, 130px 130px;
+    background-repeat: no-repeat, no-repeat, repeat;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .fig--warm .fig__plate {
+    background-image:
+      radial-gradient(120% 120% at 20% 12%, rgba(226, 163, 183, 0.5), rgba(226, 163, 183, 0) 60%),
+      linear-gradient(150deg, #2a0620 0%, #7a2f52 46%, #a8506e 100%),
+      var(--grain-l);
+    box-shadow: inset 0 0 0 1px rgba(247, 240, 239, 0.12);
+  }
+  .fig--light .fig__plate {
+    background-image:
+      radial-gradient(120% 120% at 78% 16%, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0) 55%),
+      linear-gradient(150deg, #f6ecec 0%, #ecd3da 55%, #d3a3b6 100%),
+      var(--grain-d);
+    box-shadow: inset 0 0 0 1px rgba(42, 10, 34, 0.1);
+  }
+  .fig--dark .fig__plate {
+    background-image:
+      radial-gradient(120% 120% at 24% 14%, rgba(226, 163, 183, 0.3), rgba(226, 163, 183, 0) 58%),
+      linear-gradient(150deg, #1a0214 0%, #39051f 60%, #5a1642 100%),
+      var(--grain-l);
+    box-shadow: inset 0 0 0 1px rgba(247, 240, 239, 0.1);
+  }
+  .fig__mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 18%, 12rem);
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.09);
+    user-select: none;
+  }
+  .fig--light .fig__mark { color: rgba(42, 10, 34, 0.08); }
+  .fig__label {
+    position: absolute;
+    top: 1rem;
+    left: 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(247, 240, 239, 0.85);
+  }
+  .fig--light .fig__label { color: rgba(42, 10, 34, 0.6); }
+  .fig__frame-note {
+    position: absolute;
+    bottom: 1rem;
+    left: 1.1rem;
+    right: 1.1rem;
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: rgba(247, 240, 239, 0.6);
+  }
+  .fig--light .fig__frame-note { color: rgba(42, 10, 34, 0.45); }
+</style>

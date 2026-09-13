@@ -1,0 +1,201 @@
+---
+/**
+ * Тело страницы услуги — собирается из объекта service (src/data/services.mjs).
+ * Порядок блоков: интро (что это + фото) → кому подходит → что вы получаете
+ * → как проходит → процедуры и цены → мастера → FAQ.
+ * Hero и блок записи задаются на самой странице услуги.
+ */
+import Figure from './Figure.astro';
+import MasterCard from './MasterCard.astro';
+import { getMaster } from '../data/team.mjs';
+import { SERVICE_IMAGES } from '../data/media.mjs';
+
+interface Props {
+  service: any;
+}
+const { service } = Astro.props;
+const masters = (service.masters ?? []).map((id: string) => getMaster(id)).filter(Boolean);
+const photo = (SERVICE_IMAGES as Record<string, ImageMetadata>)[service.slug];
+---
+
+<!-- ЧТО ЭТО + ФОТО -->
+<section class="section">
+  <div class="container svc-intro">
+    <div class="svc-intro__text reveal">
+      <span class="index-num">01 · Что это</span>
+      <h2>{service.title}: как устроена работа</h2>
+      <p class="lead">{service.whatIs}</p>
+      <h3 class="svc-intro__sub">Кому подходит</h3>
+      <ul class="list-clean">
+        {service.forWhom.map((i: string) => <li>{i}</li>)}
+      </ul>
+    </div>
+    <div class="svc-intro__media reveal">
+      <Figure
+        image={photo}
+        ratio={service.figure?.ratio || '4/5'}
+        tone={service.figure?.tone || 'warm'}
+        label={service.figure?.label}
+        frame={service.figure?.frame}
+        sizes="(max-width: 900px) 90vw, 40vw"
+        alt={`${service.title} в студии BEAUTYTROH. ${service.summary}`}
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ЧТО ВЫ ПОЛУЧАЕТЕ -->
+<section class="section section--alt section--tight">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="index-num">02 · Результат</span>
+      <h2>Что вы получаете</h2>
+    </div>
+    <div class="feature-grid">
+      {service.results.map((r: any) => (
+        <div class="feature reveal">
+          <h3>{r.h}</h3>
+          <p>{r.p}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- КАК ПРОХОДИТ -->
+<section class="section section--tight">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="index-num">03 · Как проходит</span>
+      <h2>Процесс по шагам</h2>
+    </div>
+    <div class="steps">
+      {service.process.map((s: any, i: number) => (
+        <div class="step reveal">
+          <span class="step__num">{String(i + 1).padStart(2, '0')}</span>
+          <div>
+            <h3>{s.t}</h3>
+            <p>{s.d}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<!-- ПРОЦЕДУРЫ И ЦЕНЫ -->
+<section class="section section--alt section--tight">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="index-num">04 · Процедуры и цены</span>
+      <h2>Что входит в направление</h2>
+    </div>
+    <ul class="price-list reveal">
+      {service.procedures.map((p: any) => (
+        <li class="price-row">
+          <div class="price-row__main">
+            <span class="price-row__name">{p.name}</span>
+            <span class="price-row__desc muted">{p.desc}</span>
+          </div>
+          <div class="price-row__meta">
+            {p.duration && <span class="price-row__dur muted">{p.duration}</span>}
+            <span class="price-row__price">{p.price}</span>
+          </div>
+        </li>
+      ))}
+    </ul>
+    {service.priceNote && <p class="price-note muted">{service.priceNote}</p>}
+    <p class="price-concept muted">Цены концептуальные и ориентировочные. Точную стоимость мастер называет после осмотра.</p>
+  </div>
+</section>
+
+<!-- МАСТЕРА -->
+{masters.length > 0 && (
+  <section class="section section--tight">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="index-num">05 · Кто выполняет</span>
+        <h2>{masters.length > 1 ? 'Мастера направления' : 'Мастер направления'}</h2>
+      </div>
+      <div class="svc-masters">
+        {masters.map((m: any) => (
+          <div class="reveal"><MasterCard master={m} /></div>
+        ))}
+      </div>
+      <a class="link-arrow svc-masters__all" href="/team/">Вся команда студии <span class="arrow" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+)}
+
+<!-- FAQ -->
+{service.faq?.length > 0 && (
+  <section class="section section--alt">
+    <div class="container faq">
+      <div class="section-head reveal">
+        <span class="index-num">06 · Вопросы</span>
+        <h2>Частые вопросы</h2>
+      </div>
+      <div class="faq__list">
+        {service.faq.map((f: any) => (
+          <details class="faq__item reveal">
+            <summary>{f.q}</summary>
+            <p>{f.a}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .svc-intro {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .svc-intro__sub { margin: 2rem 0 1rem; }
+  .svc-intro__media { position: sticky; top: 110px; }
+
+  /* Прайс-строки — общие примитивы в global.css (.price-list / .price-row) */
+  .svc-masters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+    max-width: 720px;
+  }
+  .svc-masters__all { margin-top: 2.5rem; }
+
+  /* FAQ */
+  .faq__list { display: grid; gap: 0; border-top: 1px solid var(--line); max-width: var(--maxw-text); }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 1.35rem 2.5rem 1.35rem 0;
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__item summary::after {
+    content: '+';
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: var(--accent-ink);
+    transition: transform 0.3s var(--ease);
+    font-family: var(--font-body);
+  }
+  .faq__item[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+  .faq__item p { padding: 0 2.5rem 1.5rem 0; color: var(--ink-soft); max-width: 62ch; }
+
+  @media (max-width: 900px) {
+    .svc-intro { grid-template-columns: 1fr; }
+    .svc-intro__media { position: static; order: -1; max-width: 460px; }
+  }
+</style>

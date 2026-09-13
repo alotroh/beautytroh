@@ -1,0 +1,75 @@
+---
+/**
+ * GradientBackground — единый живой фон сайта.
+ * ------------------------------------------------------------------
+ * Идея из присланного «Almoayyed» (21st.dev): цельное полотно из мягких
+ * цветовых пятен (вино, слива, роза) с зерном. Реализовано на чистом CSS,
+ * фиксированным слоем на весь сайт. Отдельный слой очень медленно «дышит»
+ * (только transform → дёшево для GPU), поэтому фон читается как настоящий
+ * градиент, а не плоская заливка. Уважает prefers-reduced-motion.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<div aria-hidden="true" class={`gradient-bg ${className ?? ''}`}>
+  <div class="gradient-bg__base"></div>
+  <div class="gradient-bg__aura"></div>
+  <svg aria-hidden="true" class="gradient-bg__grain">
+    <filter id="grain-dc893a4f">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-dc893a4f)"></rect>
+  </svg>
+</div>
+
+<style>
+  .gradient-bg {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+  /* Базовое полотно: выраженный диагональный переход + яркие цветовые пятна. */
+  .gradient-bg__base {
+    position: absolute;
+    inset: 0;
+    background-color: #170210;
+    background-image:
+      radial-gradient(65% 55% at 84% 12%, rgba(230, 150, 185, 0.6), rgba(230, 150, 185, 0) 58%),
+      radial-gradient(80% 70% at 92% 98%, rgba(178, 46, 118, 0.68), rgba(178, 46, 118, 0) 60%),
+      radial-gradient(75% 65% at 10% 6%, rgba(120, 24, 88, 0.9), rgba(120, 24, 88, 0) 58%),
+      radial-gradient(85% 80% at 2% 96%, rgba(66, 6, 40, 0.95), rgba(66, 6, 40, 0) 62%),
+      linear-gradient(150deg, #3a0b2c 0%, #1c0314 46%, #430f38 100%);
+  }
+  /* «Дышащий» слой: крупные мягкие розово-сливовые области, заметный дрейф. */
+  .gradient-bg__aura {
+    position: absolute;
+    inset: -25%;
+    background-image:
+      radial-gradient(40% 38% at 26% 28%, rgba(236, 160, 190, 0.42), rgba(236, 160, 190, 0) 68%),
+      radial-gradient(46% 44% at 76% 70%, rgba(160, 46, 114, 0.5), rgba(160, 46, 114, 0) 70%),
+      radial-gradient(30% 30% at 60% 20%, rgba(214, 120, 160, 0.3), rgba(214, 120, 160, 0) 72%);
+    background-repeat: no-repeat;
+    animation: bgDrift 40s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .gradient-bg__grain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.18;
+    mix-blend-mode: overlay;
+  }
+  @keyframes bgDrift {
+    0% { transform: translate3d(-7%, -5%, 0) scale(1.08) rotate(-1deg); }
+    100% { transform: translate3d(7%, 5%, 0) scale(1.22) rotate(1deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-bg__aura { animation: none; transform: none; }
+  }
+</style>

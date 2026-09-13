@@ -1,0 +1,98 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import PackagesSection from '../../components/PackagesSection.astro';
+import { SERVICES } from '../../data/services.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Цены', href: '/prices/' },
+];
+---
+
+<BaseLayout seoKey="prices">
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">Цены</span>
+      <h1>Стоимость услуг</h1>
+      <p class="lead page-hero__lead">
+        Ориентировочные цены по направлениям. Итог зависит от длины и густоты волос, состояния
+        кожи или ногтей. Точную стоимость мастер называет после осмотра, до начала работы.
+      </p>
+      <nav class="price-nav" aria-label="Навигация по прайсу">
+        {SERVICES.map((s) => (
+          <a class="price-nav__link" href={`#${s.slug}`}>{s.title}</a>
+        ))}
+      </nav>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      {SERVICES.map((s, i) => (
+        <div class="price-group" id={s.slug}>
+          <div class="price-group__head reveal">
+            <span class="index-num">{String(i + 1).padStart(2, '0')} · Направление</span>
+            <h2>{s.title}</h2>
+            <p class="muted price-group__summary">{s.summary}</p>
+          </div>
+          <ul class="price-list reveal">
+            {s.procedures.map((p) => (
+              <li class="price-row">
+                <div class="price-row__main">
+                  <span class="price-row__name">{p.name}</span>
+                  <span class="price-row__desc muted">{p.desc}</span>
+                </div>
+                <div class="price-row__meta">
+                  {p.duration && <span class="price-row__dur muted">{p.duration}</span>}
+                  <span class="price-row__price">{p.price}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {s.priceNote && <p class="price-note muted">{s.priceNote}</p>}
+          <a class="link-arrow price-group__link" href={`/services/${s.slug}/`}>Подробнее о направлении <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+      ))}
+
+      <p class="price-concept price-disclaimer muted">
+        Цены на этой странице концептуальные и ориентировочные. BEAUTYTROH это демонстрационный
+        проект. При передаче реальному салону они заменяются на актуальный прайс в одном файле.
+      </p>
+    </div>
+  </section>
+
+  <PackagesSection />
+
+  <BookingSection heading="Записаться" text="Оставьте контакт. Подберём мастера и удобное время. Стоимость подтвердим после осмотра, до начала работы." />
+</BaseLayout>
+
+<style>
+  .price-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 2.5rem;
+  }
+  .price-nav__link {
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    color: rgba(247, 240, 239, 0.8);
+    border: 1px solid rgba(247, 240, 239, 0.2);
+    padding: 0.5em 1em;
+    border-radius: var(--radius);
+    transition: border-color 0.3s var(--ease), color 0.3s var(--ease);
+  }
+  .price-nav__link:hover { border-color: var(--clay-soft); color: var(--ivory); }
+
+  .price-group { padding-block: clamp(2.5rem, 6vw, 4rem); scroll-margin-top: 100px; }
+  .price-group:first-of-type { padding-top: 0; }
+  .price-group + .price-group { border-top: 1px solid var(--line-soft); }
+  .price-group__head { margin-bottom: 1.5rem; }
+  .price-group__head h2 { margin: 0.6rem 0 0.5rem; }
+  .price-group__summary { max-width: 60ch; }
+  .price-group__link { margin-top: 1.5rem; }
+  .price-disclaimer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-size: 0.85rem; }
+</style>

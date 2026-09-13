@@ -1,0 +1,243 @@
+---
+/**
+ * Финальный CTA-блок с формой записи.
+ * Якорь #booking — на него ведут все кнопки «Записаться».
+ * Поля: имя, телефон, интересующая услуга, комментарий.
+ *
+ * Если FORM.endpoint не настроен (нет переменных окружения) — форма
+ * работает в concept-режиме: не падает, а мягко предлагает написать
+ * напрямую в мессенджер.
+ */
+import { CONTACTS, FORM, CTA } from '../config/site.mjs';
+import { SERVICES } from '../data/services.mjs';
+
+interface Props {
+  heading?: string;
+  text?: string;
+  /** Предвыбранная услуга (slug) — напр. на странице услуги. */
+  service?: string;
+  track?: string;
+}
+const {
+  heading = 'Записаться в BEAUTYTROH',
+  text = 'Оставьте контакт и удобное время. Поможем подобрать мастера и услугу под вашу задачу и подтвердим запись.',
+  service = '',
+  track = 'click_booking',
+} = Astro.props;
+
+const hasEndpoint = Boolean(FORM.endpoint);
+const directContacts = [
+  CONTACTS.telegram && { label: 'Telegram', href: CONTACTS.telegram, track: 'click_telegram', ext: true },
+  CONTACTS.whatsapp && { label: 'WhatsApp', href: CONTACTS.whatsapp, track: 'click_whatsapp', ext: true },
+  CONTACTS.phoneDisplay && { label: CONTACTS.phoneDisplay, href: `tel:${CONTACTS.phoneRaw}`, track: 'click_phone', ext: false },
+].filter(Boolean) as { label: string; href: string; track: string; ext: boolean }[];
+---
+
+<section class="booking theme-dark" id="booking" aria-labelledby="booking-title">
+  <div class="container booking__grid">
+    <div class="booking__intro">
+      <span class="eyebrow">{CTA.book}</span>
+      <h2 id="booking-title">{heading}</h2>
+      <p class="lead">{text}</p>
+
+      {directContacts.length > 0 && (
+        <div class="booking__direct">
+          <span class="muted">Или напишите напрямую:</span>
+          <div class="booking__direct-links">
+            {directContacts.map((c) => (
+              <a
+                class="link-arrow"
+                href={c.href}
+                data-track={c.track}
+                {...(c.ext ? { rel: 'nofollow noopener', target: '_blank' } : {})}
+              >
+                {c.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <form
+      class="booking__form"
+      data-form
+      {...(hasEndpoint ? { action: FORM.endpoint, method: 'POST' } : {})}
+      novalidate
+    >
+      <div class="field">
+        <label for="bf-name">Как к вам обращаться</label>
+        <input id="bf-name" name="name" type="text" autocomplete="name" required placeholder="Имя" />
+      </div>
+      <div class="field">
+        <label for="bf-contact">Телефон для связи</label>
+        <input
+          id="bf-contact"
+          name="contact"
+          type="tel"
+          autocomplete="tel"
+          required
+          placeholder="Например, +7 900 000-00-00"
+        />
+      </div>
+      <div class="field">
+        <label for="bf-service">Интересующая услуга</label>
+        <select id="bf-service" name="service">
+          <option value="">Пока не определился(-ась)</option>
+          {SERVICES.map((s) => (
+            <option value={s.title} selected={service === s.slug}>{s.title}</option>
+          ))}
+        </select>
+      </div>
+      <div class="field">
+        <label for="bf-task">Комментарий</label>
+        <textarea
+          id="bf-task"
+          name="task"
+          rows="3"
+          placeholder="Например: хочу сложное окрашивание, волосы ниже плеч, ранее осветлялась"
+        ></textarea>
+      </div>
+
+      {/* Honeypot против спам-ботов: люди это поле не видят. */}
+      <input class="booking__hp" type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <button class="btn booking__submit" type="submit" data-track={track}>
+        {CTA.book}
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <p class="booking__note muted" data-form-note>
+        Нажимая кнопку, вы соглашаетесь на обработку контактных данных для ответа на обращение.
+      </p>
+      <p class="booking__status" data-form-status role="status" aria-live="polite" hidden></p>
+    </form>
+  </div>
+</section>
+
+<style>
+  .booking {
+    position: relative;
+    color: var(--ivory);
+    padding-block: var(--section-y);
+  }
+  .booking__grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+  .booking__intro h2 { color: var(--ivory); margin: 1rem 0 1.4rem; }
+  .booking__intro .lead { color: rgba(247, 240, 239, 0.75); max-width: 42ch; }
+  .booking__direct { margin-top: 2.5rem; display: grid; gap: 0.9rem; }
+  .booking__direct-links { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+  .booking__form {
+    display: grid;
+    gap: 1.4rem;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(247, 240, 239, 0.16);
+    backdrop-filter: blur(6px);
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    border-radius: var(--radius);
+  }
+  .field { display: grid; gap: 0.5rem; }
+  .field label {
+    font-size: 0.74rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--clay-soft);
+  }
+  .field input,
+  .field textarea,
+  .field select {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--ivory);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgba(247, 240, 239, 0.28);
+    padding: 0.6rem 0;
+    transition: border-color 0.3s var(--ease);
+    resize: vertical;
+  }
+  .field select { appearance: none; cursor: pointer; }
+  .field select option { color: #2a0a22; }
+  .field input::placeholder,
+  .field textarea::placeholder { color: rgba(247, 240, 239, 0.4); }
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus { outline: none; border-color: var(--clay-soft); }
+  .booking__submit {
+    --btn-bg: var(--ivory);
+    --btn-fg: var(--espresso);
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .booking__note { font-size: 0.8rem; line-height: 1.5; }
+  .booking__status { font-size: 0.92rem; padding: 0.6rem 0; color: var(--clay-soft); }
+  .booking__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px; height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 820px) {
+    .booking__grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  // Прогрессивное улучшение отправки формы записи.
+  document.querySelectorAll<HTMLFormElement>('[data-form]').forEach((form) => {
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const showStatus = (msg: string) => {
+      if (!status) return;
+      status.textContent = msg;
+      status.hidden = false;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      const name = form.querySelector<HTMLInputElement>('[name="name"]');
+      const contact = form.querySelector<HTMLInputElement>('[name="contact"]');
+      if (!name?.value.trim() || !contact?.value.trim()) {
+        e.preventDefault();
+        showStatus('Пожалуйста, укажите имя и телефон для связи.');
+        return;
+      }
+
+      // Concept-режим: endpoint не настроен — форма не отправляется, подсказываем канал.
+      if (!form.getAttribute('action')) {
+        e.preventDefault();
+        showStatus('Спасибо! Это концепт-версия сайта. Напишите, пожалуйста, напрямую в мессенджер или позвоните, чтобы записаться.');
+        return;
+      }
+
+      e.preventDefault();
+      showStatus('Отправляем…');
+      try {
+        const fd = new FormData(form);
+        const payload = {
+          name: String(fd.get('name') || ''),
+          contact: String(fd.get('contact') || ''),
+          service: String(fd.get('service') || ''),
+          task: String(fd.get('task') || ''),
+          company: String(fd.get('company') || ''), // honeypot
+        };
+        const res = await fetch(form.getAttribute('action')!, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (res.ok) {
+          form.reset();
+          showStatus('Спасибо! Заявка отправлена. Мы свяжемся с вами, чтобы подтвердить запись.');
+        } else {
+          showStatus('Не удалось отправить. Попробуйте написать напрямую в мессенджер.');
+        }
+      } catch {
+        showStatus('Не удалось отправить. Попробуйте написать напрямую в мессенджер.');
+      }
+    });
+  });
+</script>

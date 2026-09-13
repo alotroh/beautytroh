@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import BookingSection from '../../components/BookingSection.astro';
+import PackagesSection from '../../components/PackagesSection.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { SERVICES } from '../../data/services.mjs';
+import { SERVICE_IMAGES, PROCEDURE_IMAGES } from '../../data/media.mjs';
+
+const crumbs = [
+  { name: 'Главная', href: '/' },
+  { name: 'Услуги', href: '/services/' },
+];
+
+// Каталог считаем здесь, чтобы в шаблоне не было type-assertion c угловыми
+// скобками (ломает JSX-парсер Astro).
+const PROC = PROCEDURE_IMAGES as Record<string, ImageMetadata | ImageMetadata[]>;
+const SVC = SERVICE_IMAGES as Record<string, ImageMetadata>;
+
+const catalog = SERVICES.map((s, i) => ({
+  slug: s.slug,
+  title: s.title,
+  tone: s.figure?.tone,
+  num: String(i + 1).padStart(2, '0'),
+  cards: s.procedures.map((p) => {
+    const media = PROC[p.name] ?? SVC[s.slug];
+    const isSplit = Array.isArray(media);
+    return {
+      title: p.name,
+      price: p.price,
+      desc: p.desc,
+      duration: p.duration,
+      image: isSplit ? undefined : (media as ImageMetadata),
+      images: isSplit ? (media as ImageMetadata[]) : undefined,
+    };
+  }),
+}));
+---
+
+<BaseLayout seoKey="services">
+  <section class="page-hero">
+    <div class="container">
+      <Breadcrumbs items={crumbs} />
+      <span class="eyebrow">Услуги · 5 направлений</span>
+      <h1>Каталог услуг</h1>
+      <p class="lead page-hero__lead">
+        Пять направлений под одной крышей. Ниже все услуги по категориям, а в самом низу
+        <span class="hl">выгодные пакеты</span>, где несколько процедур собраны по цене приятнее,
+        чем по отдельности.
+      </p>
+      <div class="page-hero__actions">
+        <a class="btn" href="#packages" data-track="click_service">Смотреть пакеты <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="link-arrow" href="/prices/">Полный прайс</a>
+      </div>
+    </div>
+  </section>
+
+  {catalog.map((c) => (
+    <section class="section catalog" aria-labelledby={`cat-${c.slug}`}>
+      <div class="container">
+        <div class="catalog__head reveal">
+          <div>
+            <span class="index-num">{c.num} · Направление</span>
+            <h2 id={`cat-${c.slug}`}>{c.title}</h2>
+          </div>
+          <a class="link-arrow catalog__more" href={`/services/${c.slug}/`}>
+            О направлении <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="product-grid">
+          {c.cards.map((card, ci) => (
+            <div class="reveal" style={`--i:${ci}`}>
+              <ProductCard
+                title={card.title}
+                price={card.price}
+                desc={card.desc}
+                duration={card.duration}
+                href={`/services/${c.slug}/`}
+                tone={c.tone}
+                label={c.title}
+                image={card.image}
+                images={card.images}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <PackagesSection />
+
+  <BookingSection heading="Не знаете, что выбрать?" text="Опишите задачу. Подскажем направление, мастера или пакет, а на месте подберём процедуру после диагностики." />
+</BaseLayout>
+
+<style>
+  .catalog { padding-block: clamp(2.5rem, 6vw, 4.5rem); }
+  .catalog + .catalog { padding-top: 0; }
+  .catalog__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .catalog__head h2 { margin-top: 0.6rem; }
+  .catalog__more { flex: none; }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+  }
+  @media (max-width: 1000px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 720px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 420px) { .product-grid { grid-template-columns: 1fr 1fr; gap: 1rem; } }
+</style>

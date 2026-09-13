@@ -1,0 +1,66 @@
+---
+/**
+ * Плавающая CTA.
+ * Desktop: аккуратная кнопка снизу справа, появляется после прокрутки.
+ * Mobile: закреплённая внизу панель. Прячется у формы записи, чтобы не
+ * перекрывать её.
+ */
+import { CTA } from '../config/site.mjs';
+---
+
+<div class="sticky-cta" data-sticky-cta aria-hidden="true">
+  <a class="btn btn--accent sticky-cta__btn" href="#booking" data-track="click_booking">
+    {CTA.book}
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+</div>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    z-index: 90;
+    right: clamp(1rem, 3vw, 2rem);
+    bottom: clamp(1rem, 3vw, 2rem);
+    opacity: 0;
+    transform: translateY(16px);
+    pointer-events: none;
+    transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .sticky-cta.is-visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .sticky-cta__btn {
+    box-shadow: 0 10px 30px -12px rgba(33, 3, 26, 0.5);
+    font-size: 0.9rem;
+  }
+  @media (max-width: 760px) {
+    .sticky-cta { left: 1rem; right: 1rem; bottom: 1rem; }
+    .sticky-cta__btn { width: 100%; justify-content: center; padding-block: 1.05em; }
+  }
+</style>
+
+<script>
+  const cta = document.querySelector<HTMLElement>('[data-sticky-cta]');
+  const target = document.querySelector('#booking');
+  if (cta) {
+    let nearForm = false;
+    if (target && 'IntersectionObserver' in window) {
+      new IntersectionObserver(
+        (entries) => {
+          nearForm = entries[0].isIntersecting;
+          update();
+        },
+        { rootMargin: '0px 0px -20% 0px' }
+      ).observe(target);
+    }
+    const update = () => {
+      const show = window.scrollY > 600 && !nearForm;
+      cta.classList.toggle('is-visible', show);
+      cta.setAttribute('aria-hidden', String(!show));
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+  }
+</script>

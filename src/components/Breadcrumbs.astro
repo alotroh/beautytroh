@@ -1,0 +1,66 @@
+---
+/**
+ * Хлебные крошки + BreadcrumbList (Schema.org).
+ * items: [{ name, href }] — последний элемент считается текущей страницей.
+ */
+import { SITE_URL } from '../config/site.mjs';
+
+interface Crumb {
+  name: string;
+  href: string;
+}
+interface Props {
+  items: Crumb[];
+}
+const { items } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.name,
+    item: new URL(c.href, SITE_URL).href,
+  })),
+};
+---
+
+<nav class="breadcrumbs" aria-label="Хлебные крошки">
+  <ol>
+    {
+      items.map((c, i) => (
+        <li>
+          {i < items.length - 1 ? (
+            <a href={c.href}>{c.name}</a>
+          ) : (
+            <span aria-current="page">{c.name}</span>
+          )}
+          {i < items.length - 1 && <span class="breadcrumbs__sep" aria-hidden="true">·</span>}
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+<script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+<style>
+  .breadcrumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+  }
+  .breadcrumbs li { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .breadcrumbs a {
+    color: var(--ink-muted);
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s var(--ease), border-color 0.3s var(--ease);
+  }
+  .breadcrumbs a:hover { color: var(--ink); border-color: var(--accent); }
+  .breadcrumbs__sep { color: var(--line); }
+</style>
