@@ -14,38 +14,6 @@ import { websiteSchema, organizationSchema, beautyBusinessSchema } from '../conf
 const teamPreview = TEAM.slice(0, 3);
 const latestPosts = POSTS.slice(0, 3);
 
-// Слайды hero — один статичный фон, поверх листается текст.
-interface HeroSlide {
-  eyebrow: string;
-  title: string;      // {em} ... {/em} выделяет карамельную строку
-  lead: string;       // {hl} ... {/hl} выделяет ключевые слова
-  cta: { label: string; href: string };
-  secondary: { label: string; href: string };
-}
-const heroSlides: HeroSlide[] = [
-  {
-    eyebrow: 'Студия красоты · Концепт',
-    title: 'Красиво, когда {em}сделано хорошо{/em}',
-    lead: 'Сюда приходят не за процедурой, а за {hl}результатом{/hl} и {hl}работой мастера{/hl}. Волосы, окрашивание, маникюр, брови и уход за лицом.',
-    cta: { label: 'Записаться', href: '#booking' },
-    secondary: { label: 'Посмотреть услуги', href: '/services/' },
-  },
-  {
-    eyebrow: '5 направлений · одна студия',
-    title: 'Ваш образ — {em}в одних руках{/em}',
-    lead: 'Волосы, окрашивание, маникюр, брови и уход за лицом — всё в {hl}одном пространстве{/hl}, спокойно и без спешки.',
-    cta: { label: 'Записаться', href: '#booking' },
-    secondary: { label: 'Посмотреть услуги', href: '/services/' },
-  },
-  {
-    eyebrow: 'Честный подход',
-    title: 'Результат, {em}а не процедуры{/em}',
-    lead: 'Обсуждаем, что реально получится {hl}именно у вас{/hl}, ещё до начала. Если задуманное не подойдёт — скажем честно.',
-    cta: { label: 'Записаться', href: '#booking' },
-    secondary: { label: 'О студии', href: '/about/' },
-  },
-];
-
 // Плитки визуальной галереи — реальные фото по направлениям, асимметрия.
 // У «Волос» широкая плитка с ДВУМЯ фото рядом (hair + hair 2).
 interface GalleryTile {
@@ -64,17 +32,11 @@ const gallery: GalleryTile[] = [
   { label: 'Волосы', imgs: HAIR_STRIP, tone: 'warm', ratio: '16/10', span: 'wide' },
 ];
 
-// Превращает {em}...{/em} и {hl}...{/hl} в безопасный HTML (контент наш, статичный).
-const renderRich = (s: string) =>
-  s
-    .replace(/\{em\}/g, '<em>').replace(/\{\/em\}/g, '</em>')
-    .replace(/\{hl\}/g, '<span class="hl">').replace(/\{\/hl\}/g, '</span>');
-
 const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), beautyBusinessSchema({ image: '/images/og-cover.svg' })];
 ---
 
 <BaseLayout seoKey="home" transparentHeader={true} jsonLd={jsonLd}>
-  <!-- 01 · HERO (статичный фон + листаемые текст-слайды) -->
+  <!-- 01 · HERO — редакционный: ярлык сверху, крупный заголовок снизу (как NØR / trohamburger) -->
   <section class="hero theme-dark" aria-labelledby="hero-title">
     <div class="hero__photo" aria-hidden="true">
       <Image
@@ -86,75 +48,31 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
         fetchpriority="high"
         class="hero__img"
       />
-      <div class="hero__shimmer" aria-hidden="true"></div>
-      <div class="hero__veil"></div>
+      <div class="hero__scrim"></div>
     </div>
 
-    <div class="container hero__inner">
-      <div
-        class="hero__slider"
-        data-hero-slider
-        data-autoplay="6500"
-        role="region"
-        aria-roledescription="карусель"
-        aria-label="Главные сообщения студии"
-      >
-        <div class="hero__track" data-hero-track>
-          {heroSlides.map((slide, i) => (
-            <article
-              class="hero__slide"
-              data-hero-slide
-              role="group"
-              aria-roledescription="слайд"
-              aria-label={`${i + 1} из ${heroSlides.length}`}
-              aria-hidden={i === 0 ? 'false' : 'true'}
-            >
-              <div class="hero__text">
-                <span class="eyebrow eyebrow--rule"><span class="hero__dot" aria-hidden="true"></span>{slide.eyebrow}</span>
-                {i === 0 ? (
-                  <h1 id="hero-title" class="hero__title" set:html={renderRich(slide.title)} />
-                ) : (
-                  <p class="hero__title" set:html={renderRich(slide.title)} />
-                )}
-                <p class="lead hero__lead" set:html={renderRich(slide.lead)} />
-                <div class="hero__actions">
-                  <a class="btn hero__cta" href={slide.cta.href} data-track="click_booking">
-                    {slide.cta.label} <span class="arrow" aria-hidden="true">→</span>
-                  </a>
-                  <a class="link-arrow hero__secondary" href={slide.secondary.href}>{slide.secondary.label}</a>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+    <div class="container hero__top">
+      <span class="hero__brand">BEAUTYTROH <span class="hero__brand-sep" aria-hidden="true">/</span> студия красоты</span>
+      <a class="hero__scroll" href="#dir-title">листай вниз <span class="hero__scroll-arrow" aria-hidden="true">↓</span></a>
+    </div>
 
-        <div class="hero__controls">
-          <button class="hero__arrow" type="button" data-hero-prev aria-label="Предыдущий слайд">
-            <span aria-hidden="true">←</span>
-          </button>
-          <div class="hero__dots" data-hero-dots role="tablist" aria-label="Выбор слайда">
-            {heroSlides.map((_, i) => (
-              <button
-                class="hero__dot-btn"
-                type="button"
-                data-hero-dot={i}
-                role="tab"
-                aria-label={`Слайд ${i + 1}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-              ></button>
-            ))}
-          </div>
-          <button class="hero__arrow" type="button" data-hero-next aria-label="Следующий слайд">
-            <span aria-hidden="true">→</span>
-          </button>
+    <div class="container hero__main">
+      <div class="hero__text">
+        <p class="hero__label">Волосы — Окрашивание — Маникюр — Брови — Уход за лицом</p>
+        <h1 id="hero-title" class="hero__title">
+          Красиво, когда<br /><span class="hero__title-accent">сделано хорошо</span>
+        </h1>
+        <div class="hero__actions">
+          <a class="btn hero__cta" href="#booking" data-track="click_booking">Записаться <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="link-arrow hero__secondary" href="/services/">Посмотреть услуги</a>
         </div>
       </div>
-    </div>
 
-    <div class="container hero__facts">
-      <div class="hero__fact"><span class="hero__fact-num">5 направлений</span><span class="hero__fact-label">под одной крышей</span></div>
-      <div class="hero__fact"><span class="hero__fact-num">Диагностика</span><span class="hero__fact-label">до каждой процедуры</span></div>
-      <div class="hero__fact"><span class="hero__fact-num">Честный подход</span><span class="hero__fact-label">к результату и цене</span></div>
+      <ul class="hero__facts">
+        <li class="hero__fact"><span class="hero__fact-num">5</span><span class="hero__fact-label">направлений под одной крышей</span></li>
+        <li class="hero__fact"><span class="hero__fact-num">Диагностика</span><span class="hero__fact-label">до каждой процедуры</span></li>
+        <li class="hero__fact"><span class="hero__fact-num">Честно</span><span class="hero__fact-label">о результате и цене</span></li>
+      </ul>
     </div>
   </section>
 
@@ -311,217 +229,115 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 </BaseLayout>
 
 <style>
-  /* -------- HERO (editorial, фото «в край» справа) -------- */
+  /* -------- HERO — редакционный, статичный (как NØR / trohamburger):
+     ярлык сверху, крупный заголовок снизу, плоское фото + спокойное затемнение.
+     Без мерцаний, свечения, градиентного текста и анимаций фона. -------- */
   .hero {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     color: var(--ivory);
-    padding-top: clamp(9rem, 16vw, 13rem);
-    padding-bottom: clamp(3rem, 7vw, 5rem);
-    min-height: clamp(600px, 88vh, 920px);
+    min-height: clamp(600px, 92svh, 960px);
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: space-between;
+    gap: clamp(2rem, 6vw, 4rem);
+    padding-top: clamp(7rem, 12vw, 10rem);
+    padding-bottom: clamp(2rem, 5vw, 3.25rem);
   }
-  /* Фото на весь экран — одна цельная поверхность, без вертикального стыка */
-  .hero__photo {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-  }
+  .hero__photo { position: absolute; inset: 0; z-index: -1; }
   .hero__img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 58% center;
-    transform-origin: 65% 45%;
-    animation: heroDrift 26s ease-in-out infinite alternate;
-    will-change: transform;
+    object-position: 60% center;
+    transform: scale(1.03);
   }
-  /* Мягкое «дыхание» тёплого света справa — еле заметное мерцание. */
-  .hero__shimmer {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      60% 70% at 82% 42%,
-      rgba(224, 158, 92, 0.22) 0%,
-      rgba(224, 158, 92, 0.08) 38%,
-      rgba(224, 158, 92, 0) 70%
-    );
-    mix-blend-mode: screen;
-    opacity: 0.7;
-    animation: heroShimmerLight 9s ease-in-out infinite;
-  }
-  /* Плавный тёмный градиент слева (à la Vogue): текст читается, справа виден
-     салон. Один непрерывный оверлей — переходов-«ступенек» нет. */
-  .hero__veil {
+  /* Плоское затемнение: слева и снизу — чтобы текст читался. Спокойные слои, без эффектов. */
+  .hero__scrim {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg,
-        rgba(23, 15, 9, 0.94) 0%,
-        rgba(23, 15, 9, 0.86) 26%,
-        rgba(23, 15, 9, 0.55) 48%,
-        rgba(23, 15, 9, 0.12) 70%,
-        rgba(23, 15, 9, 0) 88%),
-      linear-gradient(to top, rgba(20, 13, 8, 0.5), rgba(20, 13, 8, 0) 26%),
-      linear-gradient(to bottom, rgba(20, 13, 8, 0.4), rgba(20, 13, 8, 0) 16%);
+      linear-gradient(90deg, rgba(20, 13, 8, 0.78) 0%, rgba(20, 13, 8, 0.34) 38%, rgba(20, 13, 8, 0) 66%),
+      linear-gradient(0deg, rgba(20, 13, 8, 0.82) 0%, rgba(20, 13, 8, 0.1) 42%, rgba(20, 13, 8, 0) 60%),
+      linear-gradient(180deg, rgba(20, 13, 8, 0.42) 0%, rgba(20, 13, 8, 0) 22%);
   }
-  .hero__inner { flex: 1; display: flex; align-items: center; }
-  .hero__text { max-width: 34rem; }
 
-  /* -------- HERO SLIDER -------- */
-  .hero__slider { position: relative; width: 100%; overflow: hidden; }
-  .hero__track {
-    display: flex;
-    transition: transform 0.75s cubic-bezier(0.65, 0, 0.1, 1);
-    touch-action: pan-y;
-  }
-  .hero__slide {
-    flex: 0 0 100%;
-    width: 100%;
-    min-width: 0;
-    opacity: 0.25;
-    transition: opacity 0.6s var(--ease);
-  }
-  .hero__slide.is-active { opacity: 1; }
-  /* Пока JS не подхватил — первый слайд уже виден корректно */
-  .hero__slide:first-child { opacity: 1; }
-  .hero__slider.is-ready .hero__slide:first-child:not(.is-active) { opacity: 0.25; }
-
-  .hero__controls {
+  /* --- верхняя строка: бренд слева, скролл справа --- */
+  .hero__top {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    margin-top: clamp(2rem, 5vw, 3rem);
+    justify-content: space-between;
+    gap: 1rem;
   }
-  .hero__arrow {
-    flex: 0 0 auto;
-    width: 2.9rem;
-    height: 2.9rem;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    border: 1px solid rgba(247, 240, 239, 0.3);
-    background: rgba(23, 15, 9, 0.25);
-    color: var(--ivory);
-    font-size: 1.1rem;
-    cursor: pointer;
-    backdrop-filter: blur(4px);
-    transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease);
+  .hero__brand,
+  .hero__scroll {
+    font-family: var(--font-body);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(239, 231, 219, 0.72);
   }
-  .hero__arrow:hover {
-    border-color: var(--clay-soft);
-    background: rgba(189, 122, 69, 0.22);
-    transform: translateY(-1px);
+  .hero__brand-sep { color: var(--clay-soft); margin: 0 0.35em; }
+  .hero__scroll {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: color 0.3s var(--ease);
   }
-  .hero__arrow:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 3px; }
+  .hero__scroll:hover { color: var(--ivory); }
 
-  .hero__dots { display: flex; align-items: center; gap: 0.6rem; }
-  .hero__dot-btn {
-    width: 9px;
-    height: 9px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: rgba(247, 240, 239, 0.32);
-    cursor: pointer;
-    transition: background 0.3s var(--ease), width 0.3s var(--ease);
+  /* --- нижний блок: заголовок слева, факты справа --- */
+  .hero__main {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: clamp(1.75rem, 5vw, 4rem);
+    align-items: end;
   }
-  .hero__dot-btn:hover { background: rgba(247, 240, 239, 0.6); }
-  .hero__dot-btn[aria-selected='true'] {
-    width: 24px;
-    border-radius: 6px;
-    background: var(--clay-soft);
+  .hero__label {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--clay-soft);
+    margin-bottom: 1.25rem;
   }
-  .hero__dot-btn:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 3px; }
-  .hero__dot {
-    position: absolute;
-    left: 0.6rem;
-    top: 0.35em;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--clay);
-    box-shadow: 0 0 0 0 rgba(189, 122, 69, 0.6);
-    animation: heroPulse 2.6s ease-out infinite;
-  }
-  .eyebrow--rule .hero__dot { left: 0; }
-  .eyebrow--rule { padding-left: 1.6rem; }
-  .eyebrow--rule::before { display: none; }
   .hero__title {
     color: var(--ivory);
-    margin: 1.5rem 0;
-    max-width: 15ch;
-    font-size: clamp(3rem, 1.6rem + 6vw, 6.4rem);
-    line-height: 1.02;
+    font-size: clamp(2.9rem, 1.4rem + 6.4vw, 6.8rem);
+    line-height: 0.98;
     font-weight: 400;
-    text-wrap: balance;
+    letter-spacing: -0.01em;
+    margin: 0;
   }
-  /* Мерцающий карамельный акцент на ключевой строке */
-  .hero__title em {
-    font-style: normal;
-    display: block;
-    background: linear-gradient(100deg, var(--clay-soft) 0%, #fbe4c4 45%, var(--clay-soft) 70%);
-    background-size: 220% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: heroShimmer 6s linear infinite;
-  }
-
-  /* Плавный вход элементов активного слайда (повторяется при каждой смене) */
-  .hero__slide.is-active .hero__text > * { animation: heroIn 0.8s var(--ease) backwards; }
-  .hero__slide.is-active .hero__text .eyebrow { animation-delay: 0.08s; }
-  .hero__slide.is-active .hero__title { animation-delay: 0.18s; }
-  .hero__slide.is-active .hero__lead { animation-delay: 0.3s; }
-  .hero__slide.is-active .hero__text .hero__actions { animation-delay: 0.42s; }
-  .hero__photo { animation: heroIn 1.2s var(--ease) 0.1s backwards; }
-  .hero__facts { animation: heroIn 0.9s var(--ease) 0.65s backwards; }
-
-  @keyframes heroIn {
-    from { opacity: 0; transform: translateY(26px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  /* Еле заметный дрейф + зум фона (ощущение «живого» кадра) */
-  @keyframes heroDrift {
-    from { transform: scale(1.04) translate3d(0, 0, 0); }
-    to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
-  }
-  @keyframes heroShimmerLight {
-    0%, 100% { opacity: 0.45; transform: translate3d(0, 0, 0); }
-    50% { opacity: 0.85; transform: translate3d(-1.2%, 0.6%, 0); }
-  }
-  @keyframes heroShimmer {
-    to { background-position: 220% center; }
-  }
-  @keyframes heroPulse {
-    0% { box-shadow: 0 0 0 0 rgba(189, 122, 69, 0.55); }
-    70%, 100% { box-shadow: 0 0 0 10px rgba(189, 122, 69, 0); }
-  }
-  .hero__lead { color: rgba(239, 231, 219, 0.9); max-width: 46ch; font-size: clamp(1.12rem, 1rem + 0.5vw, 1.42rem); }
+  .hero__title-accent { color: var(--clay-soft); }
   .hero__actions {
     display: flex;
     align-items: center;
     gap: 2rem;
     flex-wrap: wrap;
-    margin-top: 2.5rem;
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
   }
   .hero__secondary { color: var(--ivory); }
   .hero__secondary:hover { color: var(--clay-soft); }
+
   .hero__facts {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(1.5rem, 5vw, 4rem);
-    margin-top: clamp(3rem, 7vw, 5rem);
-    padding-top: 2rem;
-    border-top: 1px solid rgba(247, 240, 239, 0.14);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.1rem;
   }
-  .hero__fact { display: grid; gap: 0.2rem; }
-  .hero__fact-num { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--clay-soft); }
-  .hero__fact-label { font-size: 0.82rem; letter-spacing: 0.04em; color: rgba(247, 240, 239, 0.6); }
+  .hero__fact {
+    display: grid;
+    gap: 0.15rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--clay);
+  }
+  .hero__fact-num { font-family: var(--font-display); font-size: 1.45rem; font-weight: 600; color: var(--clay-soft); line-height: 1.1; }
+  .hero__fact-label { font-size: 0.82rem; letter-spacing: 0.02em; color: rgba(239, 231, 219, 0.62); }
 
   /* -------- НАПРАВЛЕНИЯ (editorial index) -------- */
   .dir-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
@@ -596,13 +412,13 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 
   /* -------- RESPONSIVE -------- */
   @media (max-width: 940px) {
-    .hero__photo { width: 100%; }
-    .hero__veil {
-      background:
-        linear-gradient(to top, rgba(28, 19, 12, 0.88) 12%, rgba(28, 19, 12, 0.35) 55%, rgba(28, 19, 12, 0.5)),
-        linear-gradient(100deg, rgba(36, 24, 17, 0.8), rgba(36, 24, 17, 0.4));
+    .hero__main { grid-template-columns: 1fr; gap: clamp(2rem, 7vw, 3rem); }
+    .hero__facts {
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.5rem;
+      padding-top: 1.75rem;
+      border-top: 1px solid var(--line);
     }
-    .hero__text { max-width: 100%; }
     .approach__inner { grid-template-columns: 1fr; }
     .space__inner { grid-template-columns: 1fr; }
     .space__media { max-width: 520px; }
@@ -616,120 +432,8 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     .dir-row__arrow { display: none; }
     .team-preview { grid-template-columns: 1fr; max-width: 340px; }
     .gallery__cell--tall { grid-row: span 1; }
-    .hero__controls { gap: 0.9rem; }
-    .hero__arrow { width: 2.6rem; height: 2.6rem; }
-  }
-
-  /* Уважаем системную настройку «меньше движения» */
-  @media (prefers-reduced-motion: reduce) {
-    .hero__img,
-    .hero__shimmer { animation: none; }
-    .hero__track { transition: none; }
-    .hero__slide,
-    .hero__slide.is-active .hero__text > * { transition: none; animation: none; }
+    .hero__facts { grid-template-columns: 1fr; }
+    .hero__brand, .hero__scroll { font-size: 0.66rem; letter-spacing: 0.16em; }
+    .hero__scroll { display: none; }
   }
 </style>
-
-<script>
-  class HeroSlider {
-    root: HTMLElement;
-    track: HTMLElement;
-    slides: HTMLElement[];
-    dots: HTMLElement[];
-    index = 0;
-    timer: number | null = null;
-    delay: number;
-    reduced: boolean;
-
-    constructor(root: HTMLElement) {
-      this.root = root;
-      this.track = root.querySelector('[data-hero-track]') as HTMLElement;
-      this.slides = Array.from(root.querySelectorAll<HTMLElement>('[data-hero-slide]'));
-      this.dots = Array.from(root.querySelectorAll<HTMLElement>('[data-hero-dot]'));
-      this.delay = Number(root.dataset.autoplay) || 6500;
-      this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      if (this.slides.length <= 1) return;
-
-      root.classList.add('is-ready');
-      this.bind();
-      this.go(0, false);
-      if (!this.reduced) this.play();
-    }
-
-    bind() {
-      this.root.querySelector('[data-hero-prev]')?.addEventListener('click', () => this.step(-1, true));
-      this.root.querySelector('[data-hero-next]')?.addEventListener('click', () => this.step(1, true));
-      this.dots.forEach((dot, i) =>
-        dot.addEventListener('click', () => { this.go(i, true); this.restart(); })
-      );
-
-      // Пауза при наведении / фокусе
-      this.root.addEventListener('mouseenter', () => this.pause());
-      this.root.addEventListener('mouseleave', () => { if (!this.reduced) this.play(); });
-      this.root.addEventListener('focusin', () => this.pause());
-      this.root.addEventListener('focusout', () => { if (!this.reduced) this.play(); });
-
-      // Клавиатура
-      this.root.addEventListener('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'ArrowLeft') { this.step(-1, true); this.restart(); }
-        if (e.key === 'ArrowRight') { this.step(1, true); this.restart(); }
-      });
-
-      // Свайп (touch + мышь)
-      let startX = 0, dragging = false;
-      const down = (x: number) => { startX = x; dragging = true; this.pause(); };
-      const up = (x: number) => {
-        if (!dragging) return;
-        dragging = false;
-        const dx = x - startX;
-        if (Math.abs(dx) > 45) this.step(dx < 0 ? 1 : -1, true);
-        if (!this.reduced) this.play();
-      };
-      this.track.addEventListener('touchstart', (e) => down(e.touches[0].clientX), { passive: true });
-      this.track.addEventListener('touchend', (e) => up(e.changedTouches[0].clientX));
-      this.track.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') down(e.clientX); });
-      window.addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse') up(e.clientX); });
-
-      // Не крутим во вкладке в фоне
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) this.pause();
-        else if (!this.reduced) this.play();
-      });
-    }
-
-    go(i: number, animate: boolean) {
-      this.index = (i + this.slides.length) % this.slides.length;
-      if (!animate) this.track.style.transition = 'none';
-      this.track.style.transform = `translateX(-${this.index * 100}%)`;
-      if (!animate) requestAnimationFrame(() => (this.track.style.transition = ''));
-
-      this.slides.forEach((s, n) => {
-        const active = n === this.index;
-        s.classList.toggle('is-active', active);
-        s.setAttribute('aria-hidden', active ? 'false' : 'true');
-        // Вне экрана — убираем из таб-порядка
-        if (active) s.removeAttribute('inert');
-        else s.setAttribute('inert', '');
-      });
-      this.dots.forEach((d, n) => d.setAttribute('aria-selected', n === this.index ? 'true' : 'false'));
-    }
-
-    step(dir: number, animate: boolean) { this.go(this.index + dir, animate); }
-
-    play() {
-      this.pause();
-      this.timer = window.setInterval(() => this.step(1, true), this.delay);
-    }
-    pause() { if (this.timer) { clearInterval(this.timer); this.timer = null; } }
-    restart() { if (!this.reduced) this.play(); }
-  }
-
-  const init = () => {
-    document
-      .querySelectorAll<HTMLElement>('[data-hero-slider]')
-      .forEach((el) => new HeroSlider(el));
-  };
-  if (document.readyState !== 'loading') init();
-  else document.addEventListener('DOMContentLoaded', init);
-</script>
