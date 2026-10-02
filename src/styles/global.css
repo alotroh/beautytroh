@@ -7,39 +7,39 @@
 /* -------- Токены -------- */
 :root {
   /* Палитра — светлая группа (тёплый кремовый песок, editorial-mocha à la Vogue) */
-  --ivory: #efe7db;        /* основной светлый / кремовый текст */
-  --cream: #e6d8c4;        /* второй тёплый бежевый */
-  --surface: #f3ece0;      /* карточки/поверхности на светлом */
-  --paper-deep: #ddcbb2;   /* глубже, для акцентных зон */
+  --ivory: #f5eef2;        /* основной светлый / текст (почти белый с розовым подтоном) */
+  --cream: #ecdfe6;        /* второй светлый оттенок */
+  --surface: #17141a;      /* карточки/поверхности на тёмном */
+  --paper-deep: #221d27;   /* глубже, для акцентных зон */
 
-  /* Палитра — тёмная группа (тёплый мокко/эспрессо-браун) */
-  --espresso: #2a1c13;     /* основной тёмный мокко-фон */
-  --espresso-90: #33251a;  /* чуть светлее */
-  --espresso-80: #40301f;  /* поверхность на тёмном */
-  --espresso-deep: #1c130c;/* самый глубокий браун */
+  /* Палитра — тёмная группа (глубокий чёрный — основа всего сайта) */
+  --espresso: #0d0c10;     /* основной тёмный фон */
+  --espresso-90: #141318;  /* чуть светлее */
+  --espresso-80: #1c1a22;  /* поверхность на тёмном */
+  --espresso-deep: #070608;/* самый глубокий чёрный */
 
-  /* Акцент — тёплая карамель / терракота (как тёплые блики Vogue) */
-  --clay: #bd7a45;         /* карамель-терракота */
-  --clay-soft: #e3ba8a;    /* светлая карамель — для тёмного фона */
-  --clay-ink: #9c5f2e;     /* акцентный текст на светлом (контраст AA) */
+  /* Акцент — розовый (в тему для бьюти) */
+  --clay: #ff4f97;         /* основной розовый */
+  --clay-soft: #ff93c2;    /* светлый розовый — для текста/иконок на тёмном */
+  --clay-ink: #e63c82;     /* глубже — hover/нажатие */
 
   /* Чернила */
-  --espresso-ink: #26190f; /* тёплые тёмные чернила (не чёрные) */
-  --ink-soft-base: #5a4632;
-  --ink-muted-base: #8a7458;
+  --espresso-ink: #0a090c; /* почти чёрные чернила */
+  --ink-soft-base: #b7b0bc;
+  --ink-muted-base: #8b8591;
 
-  /* Семантика — единый тёплый мокко-фон на весь сайт, кремовый текст поверх.
+  /* Семантика — единый чёрный фон на весь сайт, светлый текст поверх.
      Фон рисует фиксированный слой .site-bg (GradientBackground), секции прозрачны. */
   --bg: transparent;
   --bg-alt: transparent;
-  --surface-c: rgba(255, 250, 242, 0.06);
-  --ink: #efe7db;
-  --ink-soft: rgba(239, 231, 219, 0.82);
-  --ink-muted: rgba(239, 231, 219, 0.6);
-  --line: rgba(239, 231, 219, 0.16);
-  --line-soft: rgba(239, 231, 219, 0.09);
+  --surface-c: rgba(255, 255, 255, 0.05);
+  --ink: #f5eef2;
+  --ink-soft: rgba(245, 238, 242, 0.80);
+  --ink-muted: rgba(245, 238, 242, 0.56);
+  --line: rgba(255, 255, 255, 0.14);
+  --line-soft: rgba(255, 255, 255, 0.07);
   --accent: var(--clay-soft);
-  --accent-ink: #e8c49a;
+  --accent-ink: var(--clay-soft);
 
   /* --------------------------------------------------------------
      ФОНОВАЯ СИСТЕМА — глубина + тёплая фактура.
@@ -86,7 +86,7 @@
    тёмный, поэтому класс лишь подтверждает светлую схему. -------- */
 .theme-dark {
   --accent: var(--clay-soft);
-  --accent-ink: #e8c49a;
+  --accent-ink: var(--clay-soft);
   color-scheme: dark;
 }
 
@@ -108,7 +108,7 @@ html {
 
 body {
   margin: 0;
-  background: #1c130c; /* запасной тон под фиксированным градиентом */
+  background: #0a090c; /* запасной тон под фиксированным градиентом */
   color: var(--ink);
   font-family: var(--font-body);
   font-size: clamp(1rem, 0.96rem + 0.2vw, 1.09rem);
@@ -214,7 +214,7 @@ h1 .hl, h2 .hl, h3 .hl { font-weight: 400; } /* в заголовках Prata т
 /* -------- Кнопки -------- */
 .btn {
   --btn-bg: var(--ink);
-  --btn-fg: #2a1c12;
+  --btn-fg: #0d0c10;
   display: inline-flex;
   align-items: center;
   gap: 0.6em;
@@ -246,12 +246,14 @@ h1 .hl, h2 .hl, h3 .hl { font-weight: 400; } /* в заголовках Prata т
 .btn--ghost:hover { border-color: var(--ink); }
 .theme-dark .btn--ghost { --btn-fg: var(--ivory); }
 
-.btn--accent {
+.btn--accent,
+.theme-dark .btn--accent {
   --btn-bg: var(--clay);
   --btn-fg: #fff;
   border-color: var(--clay);
 }
-.btn--accent:hover { --btn-bg: var(--clay-ink); border-color: var(--clay-ink); }
+.btn--accent:hover,
+.theme-dark .btn--accent:hover { --btn-bg: var(--clay-ink); border-color: var(--clay-ink); }
 
 /* Текстовая ссылка со стрелкой */
 .link-arrow {
