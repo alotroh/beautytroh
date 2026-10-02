@@ -14,6 +14,38 @@ import { websiteSchema, organizationSchema, beautyBusinessSchema } from '../conf
 const teamPreview = TEAM.slice(0, 3);
 const latestPosts = POSTS.slice(0, 3);
 
+// Слайды hero — один статичный фон, поверх листается текст.
+interface HeroSlide {
+  eyebrow: string;
+  title: string;      // {em} ... {/em} выделяет карамельную строку
+  lead: string;       // {hl} ... {/hl} выделяет ключевые слова
+  cta: { label: string; href: string };
+  secondary: { label: string; href: string };
+}
+const heroSlides: HeroSlide[] = [
+  {
+    eyebrow: 'Студия красоты · Концепт',
+    title: 'Красиво, когда {em}сделано хорошо{/em}',
+    lead: 'Сюда приходят не за процедурой, а за {hl}результатом{/hl} и {hl}работой мастера{/hl}. Волосы, окрашивание, маникюр, брови и уход за лицом.',
+    cta: { label: 'Записаться', href: '#booking' },
+    secondary: { label: 'Посмотреть услуги', href: '/services/' },
+  },
+  {
+    eyebrow: '5 направлений · одна студия',
+    title: 'Ваш образ — {em}в одних руках{/em}',
+    lead: 'Волосы, окрашивание, маникюр, брови и уход за лицом — всё в {hl}одном пространстве{/hl}, спокойно и без спешки.',
+    cta: { label: 'Записаться', href: '#booking' },
+    secondary: { label: 'Посмотреть услуги', href: '/services/' },
+  },
+  {
+    eyebrow: 'Честный подход',
+    title: 'Результат, {em}а не процедуры{/em}',
+    lead: 'Обсуждаем, что реально получится {hl}именно у вас{/hl}, ещё до начала. Если задуманное не подойдёт — скажем честно.',
+    cta: { label: 'Записаться', href: '#booking' },
+    secondary: { label: 'О студии', href: '/about/' },
+  },
+];
+
 // Плитки визуальной галереи — реальные фото по направлениям, асимметрия.
 // У «Волос» широкая плитка с ДВУМЯ фото рядом (hair + hair 2).
 interface GalleryTile {
@@ -32,40 +64,89 @@ const gallery: GalleryTile[] = [
   { label: 'Волосы', imgs: HAIR_STRIP, tone: 'warm', ratio: '16/10', span: 'wide' },
 ];
 
+// Превращает {em}...{/em} и {hl}...{/hl} в безопасный HTML (контент наш, статичный).
+const renderRich = (s: string) =>
+  s
+    .replace(/\{em\}/g, '<em>').replace(/\{\/em\}/g, '</em>')
+    .replace(/\{hl\}/g, '<span class="hl">').replace(/\{\/hl\}/g, '</span>');
+
 const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), beautyBusinessSchema({ image: '/images/og-cover.svg' })];
 ---
 
 <BaseLayout seoKey="home" transparentHeader={true} jsonLd={jsonLd}>
-  <!-- 01 · HERO (editorial, в стиле Vogem: текст слева, фото справа «в край») -->
+  <!-- 01 · HERO (статичный фон + листаемые текст-слайды) -->
   <section class="hero theme-dark" aria-labelledby="hero-title">
     <div class="hero__photo" aria-hidden="true">
       <Image
         src={HERO_IMAGE}
         alt=""
         widths={[600, 900, 1300, 1700]}
-        sizes="(max-width: 940px) 100vw, 55vw"
+        sizes="100vw"
         loading="eager"
         fetchpriority="high"
         class="hero__img"
       />
+      <div class="hero__shimmer" aria-hidden="true"></div>
       <div class="hero__veil"></div>
     </div>
 
     <div class="container hero__inner">
-      <div class="hero__text">
-        <span class="eyebrow eyebrow--rule"><span class="hero__dot" aria-hidden="true"></span>Студия красоты · Концепт</span>
-        <h1 id="hero-title" class="hero__title">
-          Красиво, когда <em>сделано хорошо</em>
-        </h1>
-        <p class="lead hero__lead">
-          Сюда приходят не за процедурой, а за <span class="hl">результатом</span> и
-          <span class="hl">работой мастера</span>. Волосы, окрашивание, маникюр, брови и уход за лицом.
-        </p>
-        <div class="hero__actions">
-          <a class="btn hero__cta" href="#booking" data-track="click_booking">
-            Записаться <span class="arrow" aria-hidden="true">→</span>
-          </a>
-          <a class="link-arrow hero__secondary" href="/services/">Посмотреть услуги</a>
+      <div
+        class="hero__slider"
+        data-hero-slider
+        data-autoplay="6500"
+        role="region"
+        aria-roledescription="карусель"
+        aria-label="Главные сообщения студии"
+      >
+        <div class="hero__track" data-hero-track>
+          {heroSlides.map((slide, i) => (
+            <article
+              class="hero__slide"
+              data-hero-slide
+              role="group"
+              aria-roledescription="слайд"
+              aria-label={`${i + 1} из ${heroSlides.length}`}
+              aria-hidden={i === 0 ? 'false' : 'true'}
+            >
+              <div class="hero__text">
+                <span class="eyebrow eyebrow--rule"><span class="hero__dot" aria-hidden="true"></span>{slide.eyebrow}</span>
+                {i === 0 ? (
+                  <h1 id="hero-title" class="hero__title" set:html={renderRich(slide.title)} />
+                ) : (
+                  <p class="hero__title" set:html={renderRich(slide.title)} />
+                )}
+                <p class="lead hero__lead" set:html={renderRich(slide.lead)} />
+                <div class="hero__actions">
+                  <a class="btn hero__cta" href={slide.cta.href} data-track="click_booking">
+                    {slide.cta.label} <span class="arrow" aria-hidden="true">→</span>
+                  </a>
+                  <a class="link-arrow hero__secondary" href={slide.secondary.href}>{slide.secondary.label}</a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div class="hero__controls">
+          <button class="hero__arrow" type="button" data-hero-prev aria-label="Предыдущий слайд">
+            <span aria-hidden="true">←</span>
+          </button>
+          <div class="hero__dots" data-hero-dots role="tablist" aria-label="Выбор слайда">
+            {heroSlides.map((_, i) => (
+              <button
+                class="hero__dot-btn"
+                type="button"
+                data-hero-dot={i}
+                role="tab"
+                aria-label={`Слайд ${i + 1}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+              ></button>
+            ))}
+          </div>
+          <button class="hero__arrow" type="button" data-hero-next aria-label="Следующий слайд">
+            <span aria-hidden="true">→</span>
+          </button>
         </div>
       </div>
     </div>
@@ -253,8 +334,25 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 72% center;
-    animation: heroZoom 20s ease-in-out infinite alternate;
+    object-position: 58% center;
+    transform-origin: 65% 45%;
+    animation: heroDrift 26s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  /* Мягкое «дыхание» тёплого света справa — еле заметное мерцание. */
+  .hero__shimmer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      60% 70% at 82% 42%,
+      rgba(224, 158, 92, 0.22) 0%,
+      rgba(224, 158, 92, 0.08) 38%,
+      rgba(224, 158, 92, 0) 70%
+    );
+    mix-blend-mode: screen;
+    opacity: 0.7;
+    animation: heroShimmerLight 9s ease-in-out infinite;
   }
   /* Плавный тёмный градиент слева (à la Vogue): текст читается, справа виден
      салон. Один непрерывный оверлей — переходов-«ступенек» нет. */
@@ -273,6 +371,72 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
   }
   .hero__inner { flex: 1; display: flex; align-items: center; }
   .hero__text { max-width: 34rem; }
+
+  /* -------- HERO SLIDER -------- */
+  .hero__slider { position: relative; width: 100%; overflow: hidden; }
+  .hero__track {
+    display: flex;
+    transition: transform 0.75s cubic-bezier(0.65, 0, 0.1, 1);
+    touch-action: pan-y;
+  }
+  .hero__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    opacity: 0.25;
+    transition: opacity 0.6s var(--ease);
+  }
+  .hero__slide.is-active { opacity: 1; }
+  /* Пока JS не подхватил — первый слайд уже виден корректно */
+  .hero__slide:first-child { opacity: 1; }
+  .hero__slider.is-ready .hero__slide:first-child:not(.is-active) { opacity: 0.25; }
+
+  .hero__controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: clamp(2rem, 5vw, 3rem);
+  }
+  .hero__arrow {
+    flex: 0 0 auto;
+    width: 2.9rem;
+    height: 2.9rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(247, 240, 239, 0.3);
+    background: rgba(23, 15, 9, 0.25);
+    color: var(--ivory);
+    font-size: 1.1rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: border-color 0.3s var(--ease), background 0.3s var(--ease), transform 0.3s var(--ease);
+  }
+  .hero__arrow:hover {
+    border-color: var(--clay-soft);
+    background: rgba(189, 122, 69, 0.22);
+    transform: translateY(-1px);
+  }
+  .hero__arrow:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 3px; }
+
+  .hero__dots { display: flex; align-items: center; gap: 0.6rem; }
+  .hero__dot-btn {
+    width: 9px;
+    height: 9px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: rgba(247, 240, 239, 0.32);
+    cursor: pointer;
+    transition: background 0.3s var(--ease), width 0.3s var(--ease);
+  }
+  .hero__dot-btn:hover { background: rgba(247, 240, 239, 0.6); }
+  .hero__dot-btn[aria-selected='true'] {
+    width: 24px;
+    border-radius: 6px;
+    background: var(--clay-soft);
+  }
+  .hero__dot-btn:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 3px; }
   .hero__dot {
     position: absolute;
     left: 0.6rem;
@@ -308,12 +472,12 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     animation: heroShimmer 6s linear infinite;
   }
 
-  /* Плавный вход элементов hero при загрузке */
-  .hero__text > * { animation: heroIn 0.9s var(--ease) backwards; }
-  .hero__text .eyebrow { animation-delay: 0.1s; }
-  .hero__title { animation-delay: 0.22s; }
-  .hero__lead { animation-delay: 0.38s; }
-  .hero__actions { animation-delay: 0.52s; }
+  /* Плавный вход элементов активного слайда (повторяется при каждой смене) */
+  .hero__slide.is-active .hero__text > * { animation: heroIn 0.8s var(--ease) backwards; }
+  .hero__slide.is-active .hero__text .eyebrow { animation-delay: 0.08s; }
+  .hero__slide.is-active .hero__title { animation-delay: 0.18s; }
+  .hero__slide.is-active .hero__lead { animation-delay: 0.3s; }
+  .hero__slide.is-active .hero__text .hero__actions { animation-delay: 0.42s; }
   .hero__photo { animation: heroIn 1.2s var(--ease) 0.1s backwards; }
   .hero__facts { animation: heroIn 0.9s var(--ease) 0.65s backwards; }
 
@@ -321,9 +485,14 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     from { opacity: 0; transform: translateY(26px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes heroZoom {
-    from { transform: scale(1); }
-    to { transform: scale(1.08); }
+  /* Еле заметный дрейф + зум фона (ощущение «живого» кадра) */
+  @keyframes heroDrift {
+    from { transform: scale(1.04) translate3d(0, 0, 0); }
+    to { transform: scale(1.1) translate3d(-1.5%, -1%, 0); }
+  }
+  @keyframes heroShimmerLight {
+    0%, 100% { opacity: 0.45; transform: translate3d(0, 0, 0); }
+    50% { opacity: 0.85; transform: translate3d(-1.2%, 0.6%, 0); }
   }
   @keyframes heroShimmer {
     to { background-position: 220% center; }
@@ -447,5 +616,120 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     .dir-row__arrow { display: none; }
     .team-preview { grid-template-columns: 1fr; max-width: 340px; }
     .gallery__cell--tall { grid-row: span 1; }
+    .hero__controls { gap: 0.9rem; }
+    .hero__arrow { width: 2.6rem; height: 2.6rem; }
+  }
+
+  /* Уважаем системную настройку «меньше движения» */
+  @media (prefers-reduced-motion: reduce) {
+    .hero__img,
+    .hero__shimmer { animation: none; }
+    .hero__track { transition: none; }
+    .hero__slide,
+    .hero__slide.is-active .hero__text > * { transition: none; animation: none; }
   }
 </style>
+
+<script>
+  class HeroSlider {
+    root: HTMLElement;
+    track: HTMLElement;
+    slides: HTMLElement[];
+    dots: HTMLElement[];
+    index = 0;
+    timer: number | null = null;
+    delay: number;
+    reduced: boolean;
+
+    constructor(root: HTMLElement) {
+      this.root = root;
+      this.track = root.querySelector('[data-hero-track]') as HTMLElement;
+      this.slides = Array.from(root.querySelectorAll<HTMLElement>('[data-hero-slide]'));
+      this.dots = Array.from(root.querySelectorAll<HTMLElement>('[data-hero-dot]'));
+      this.delay = Number(root.dataset.autoplay) || 6500;
+      this.reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (this.slides.length <= 1) return;
+
+      root.classList.add('is-ready');
+      this.bind();
+      this.go(0, false);
+      if (!this.reduced) this.play();
+    }
+
+    bind() {
+      this.root.querySelector('[data-hero-prev]')?.addEventListener('click', () => this.step(-1, true));
+      this.root.querySelector('[data-hero-next]')?.addEventListener('click', () => this.step(1, true));
+      this.dots.forEach((dot, i) =>
+        dot.addEventListener('click', () => { this.go(i, true); this.restart(); })
+      );
+
+      // Пауза при наведении / фокусе
+      this.root.addEventListener('mouseenter', () => this.pause());
+      this.root.addEventListener('mouseleave', () => { if (!this.reduced) this.play(); });
+      this.root.addEventListener('focusin', () => this.pause());
+      this.root.addEventListener('focusout', () => { if (!this.reduced) this.play(); });
+
+      // Клавиатура
+      this.root.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'ArrowLeft') { this.step(-1, true); this.restart(); }
+        if (e.key === 'ArrowRight') { this.step(1, true); this.restart(); }
+      });
+
+      // Свайп (touch + мышь)
+      let startX = 0, dragging = false;
+      const down = (x: number) => { startX = x; dragging = true; this.pause(); };
+      const up = (x: number) => {
+        if (!dragging) return;
+        dragging = false;
+        const dx = x - startX;
+        if (Math.abs(dx) > 45) this.step(dx < 0 ? 1 : -1, true);
+        if (!this.reduced) this.play();
+      };
+      this.track.addEventListener('touchstart', (e) => down(e.touches[0].clientX), { passive: true });
+      this.track.addEventListener('touchend', (e) => up(e.changedTouches[0].clientX));
+      this.track.addEventListener('pointerdown', (e) => { if (e.pointerType === 'mouse') down(e.clientX); });
+      window.addEventListener('pointerup', (e) => { if (e.pointerType === 'mouse') up(e.clientX); });
+
+      // Не крутим во вкладке в фоне
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) this.pause();
+        else if (!this.reduced) this.play();
+      });
+    }
+
+    go(i: number, animate: boolean) {
+      this.index = (i + this.slides.length) % this.slides.length;
+      if (!animate) this.track.style.transition = 'none';
+      this.track.style.transform = `translateX(-${this.index * 100}%)`;
+      if (!animate) requestAnimationFrame(() => (this.track.style.transition = ''));
+
+      this.slides.forEach((s, n) => {
+        const active = n === this.index;
+        s.classList.toggle('is-active', active);
+        s.setAttribute('aria-hidden', active ? 'false' : 'true');
+        // Вне экрана — убираем из таб-порядка
+        if (active) s.removeAttribute('inert');
+        else s.setAttribute('inert', '');
+      });
+      this.dots.forEach((d, n) => d.setAttribute('aria-selected', n === this.index ? 'true' : 'false'));
+    }
+
+    step(dir: number, animate: boolean) { this.go(this.index + dir, animate); }
+
+    play() {
+      this.pause();
+      this.timer = window.setInterval(() => this.step(1, true), this.delay);
+    }
+    pause() { if (this.timer) { clearInterval(this.timer); this.timer = null; } }
+    restart() { if (!this.reduced) this.play(); }
+  }
+
+  const init = () => {
+    document
+      .querySelectorAll<HTMLElement>('[data-hero-slider]')
+      .forEach((el) => new HeroSlider(el));
+  };
+  if (document.readyState !== 'loading') init();
+  else document.addEventListener('DOMContentLoaded', init);
+</script>

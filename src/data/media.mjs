@@ -25,6 +25,7 @@ import portrait4 from '../assets/media/portrait-4.jpg';
 import portrait5 from '../assets/media/portrait-5.jpg';
 import heroStudio from '../assets/media/hero-studio.png';
 import heroModel from '../assets/media/hero-model.png';
+import heroNew from '../assets/media/hero-new.png';
 
 // Фото карточек окрашивания/бровей/маникюра/лица (Unsplash, свободная лицензия).
 import okrTonirovanie from '../assets/media/stock/okr-tonirovanie.jpg';
@@ -107,5 +108,5 @@ export const INTERIOR = heroStudio;
 
 /** Главное фото hero: интерьер студии (кадр «тёмная стена слева, салон справа»
  *  идеально ложится под текст). HERO_IMAGE_ALT — beauty-портрет как альтернатива. */
-export const HERO_IMAGE = heroStudio;
+export const HERO_IMAGE = heroNew;
 export const HERO_IMAGE_ALT = heroModel;
