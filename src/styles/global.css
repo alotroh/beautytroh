@@ -69,7 +69,6 @@
   /* Типографика */
   --font-display: 'Prata', 'Times New Roman', Georgia, serif;
   --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-script: 'Great Vibes', 'Segoe Script', 'Brush Script MT', cursive; /* бренд — рукописный, люкс-скрипт с завитками */
 
   /* Ритм и сетка */
   --maxw: 1280px;

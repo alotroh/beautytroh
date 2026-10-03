@@ -55,7 +55,9 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     <div class="hero-stage hero-stage--intro is-active" data-hero-stage="intro">
       <div class="container hero-intro">
         <p class="hero-intro__eyebrow">Студия красоты</p>
-        <h1 class="hero-intro__brand" id="hero-title">beautytroh</h1>
+        <h1 class="hero-intro__brand" id="hero-title">
+          <img class="hero-intro__wordmark" src="/brand-greatvibes.svg" alt="beautytroh" width="3159" height="1060" fetchpriority="high" />
+        </h1>
         <button class="hero-intro__enter" type="button" data-hero-enter>
           <span>смотреть</span><span class="hero-intro__enter-arrow" aria-hidden="true">↓</span>
         </button>
@@ -216,8 +218,8 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
   .hero__scrim {
     position: absolute; inset: 0;
     background:
-      radial-gradient(58% 48% at 50% 50%, rgba(255,79,151,0.30), rgba(255,79,151,0) 72%),
-      radial-gradient(120% 95% at 50% 42%, rgba(10,9,12,0.3), rgba(10,9,12,0.8) 100%),
+      radial-gradient(52% 42% at 50% 48%, rgba(255,79,151,0.20), rgba(255,79,151,0) 72%),
+      radial-gradient(120% 95% at 50% 42%, rgba(10,9,12,0.34), rgba(10,9,12,0.82) 100%),
       linear-gradient(0deg, rgba(10,9,12,0.96) 0%, rgba(10,9,12,0.22) 55%, rgba(10,9,12,0.4) 100%);
   }
 
@@ -246,26 +248,21 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     transition: opacity 1.2s var(--ease) 0.3s, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
   }
 
-  /* --- Этап 1: бренд (порядок: бренд → ярлык-тэглайн → кнопка) --- */
+  /* --- Этап 1: ярлык сверху → бренд (картинка-логотип) → кнопка --- */
   .hero-intro { text-align: center; display: grid; justify-items: center; gap: clamp(1.4rem, 3.5vw, 2.25rem); position: relative; }
-  .hero-intro__brand {
-    order: 1;
-    font-family: var(--font-script);
-    font-weight: 400;
-    color: var(--ivory);
-    font-size: clamp(5rem, 23vw, 19rem);
-    line-height: 0.8;
-    margin: 0;
-    letter-spacing: 0.005em;
-    /* многослойное розовое свечение под надписью */
-    text-shadow:
-      0 0 36px rgba(255, 79, 151, 0.55),
-      0 2px 90px rgba(255, 79, 151, 0.5),
-      0 6px 180px rgba(255, 79, 151, 0.35);
+  /* бренд — чёткий векторный логотип (SVG), не живой шрифт */
+  .hero-intro__brand { margin: 0; line-height: 0; display: block; }
+  .hero-intro__wordmark {
+    display: block;
+    width: min(90vw, 1120px);
+    height: auto;
+    /* умеренное розовое свечение под логотипом */
+    filter:
+      drop-shadow(0 0 30px rgba(255, 79, 151, 0.38))
+      drop-shadow(0 4px 70px rgba(255, 79, 151, 0.22));
   }
-  /* люкс-ярлык: тонкие линии по бокам, деликатный трекинг */
+  /* люкс-ярлык сверху: тонкие линии по бокам, деликатный трекинг */
   .hero-intro__eyebrow {
-    order: 2;
     display: inline-flex; align-items: center; gap: 1.1em;
     font-family: var(--font-body);
     font-size: clamp(0.64rem, 0.58rem + 0.3vw, 0.8rem);
@@ -282,7 +279,6 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
   .hero-intro__eyebrow::after { background: linear-gradient(90deg, var(--clay-soft), transparent); }
 
   .hero-intro__enter {
-    order: 3;
     position: relative;
     display: inline-flex; align-items: center; gap: 0.8em;
     margin-top: clamp(0.5rem, 1.5vw, 1rem);
