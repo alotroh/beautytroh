@@ -36,8 +36,8 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 ---
 
 <BaseLayout seoKey="home" transparentHeader={true} jsonLd={jsonLd}>
-  <!-- 01 · HERO — премиальный: бренд + что за бизнес, сразу понятно и без «цитат» -->
-  <section class="hero theme-dark" aria-labelledby="hero-title">
+  <!-- 01 · HERO — двухэтапный: бренд → «смотреть» → направления (скролл открывается после 2-го этапа) -->
+  <section class="hero theme-dark" data-hero aria-label="BEAUTYTROH — студия красоты">
     <div class="hero__photo" aria-hidden="true">
       <Image
         src={HERO_IMAGE}
@@ -51,54 +51,38 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
       <div class="hero__scrim"></div>
     </div>
 
-    <div class="container hero__top">
-      <span class="hero__brand">Студия красоты</span>
-      <a class="hero__scroll" href="#dir-title">листай вниз <span class="hero__scroll-arrow" aria-hidden="true">↓</span></a>
+    <!-- Этап 1 · бренд -->
+    <div class="hero-stage hero-stage--intro is-active" data-hero-stage="intro">
+      <div class="container hero-intro">
+        <p class="hero-intro__eyebrow">Студия красоты</p>
+        <h1 class="hero-intro__brand" id="hero-title">beautytroh</h1>
+        <button class="hero-intro__enter" type="button" data-hero-enter>
+          <span>смотреть</span><span class="hero-intro__enter-arrow" aria-hidden="true">↓</span>
+        </button>
+      </div>
     </div>
 
-    <div class="container hero__main">
-      <div class="hero__text">
-        <p class="hero__label">Волосы — Окрашивание — Маникюр — Брови — Уход за лицом</p>
-        <h1 id="hero-title" class="hero__title">
-          BEAUTY<span class="hero__title-accent">TROH</span>
-        </h1>
-        <p class="hero__lead">
-          Пять направлений красоты под одной крышей. За каждый результат отвечает
-          мастер, а не конвейер — от диагностики до финального зеркала.
-        </p>
-        <div class="hero__actions">
-          <a class="btn btn--accent hero__cta" href="#booking" data-track="click_booking">Записаться <span class="arrow" aria-hidden="true">→</span></a>
-          <a class="link-arrow hero__secondary" href="/services/">Услуги и цены</a>
+    <!-- Этап 2 · направления -->
+    <div class="hero-stage hero-stage--dirs" data-hero-stage="dirs" aria-hidden="true">
+      <div class="container hero-dirs">
+        <div class="hero-dirs__head">
+          <span class="index-num">BEAUTYTROH · студия красоты</span>
+          <h2 class="hero-dirs__title">Чем мы <span class="hl">занимаемся</span></h2>
         </div>
+        <ul class="hero-dirs__list">
+          {SERVICES.map((s, i) => (
+            <li class="hero-dir" style={`--i:${i}`}>
+              <a class="hero-dir__link" href={`/services/${s.slug}/`} data-track="click_service">
+                <span class="hero-dir__num">{String(i + 1).padStart(2, '0')}</span>
+                <span class="hero-dir__title">{s.title}</span>
+                <span class="hero-dir__summary">{s.summary}</span>
+                <span class="hero-dir__arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <a class="hero-dirs__more" href="#gallery-title" data-hero-continue>листать дальше <span class="arrow" aria-hidden="true">↓</span></a>
       </div>
-
-      <ul class="hero__facts">
-        <li class="hero__fact"><span class="hero__fact-num">5</span><span class="hero__fact-label">направлений под одной крышей</span></li>
-        <li class="hero__fact"><span class="hero__fact-num">Онлайн</span><span class="hero__fact-label">запись за пару минут</span></li>
-        <li class="hero__fact"><span class="hero__fact-num">Диагностика</span><span class="hero__fact-label">до каждой процедуры</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <!-- 02 · НАПРАВЛЕНИЯ -->
-  <section class="section directions" aria-labelledby="dir-title">
-    <div class="container">
-      <div class="section-head reveal">
-        <span class="index-num">01 · Направления</span>
-        <h2 id="dir-title">Чем мы <span class="hl">занимаемся</span></h2>
-      </div>
-      <ul class="dir-list">
-        {SERVICES.map((s, i) => (
-          <li class="dir-row reveal" style={`--i:${i}`}>
-            <a class="dir-row__link" href={`/services/${s.slug}/`} data-track="click_service">
-              <span class="dir-row__num">{String(i + 1).padStart(2, '0')}</span>
-              <span class="dir-row__title">{s.title}</span>
-              <span class="dir-row__summary muted">{s.summary}</span>
-              <span class="dir-row__arrow" aria-hidden="true">→</span>
-            </a>
-          </li>
-        ))}
-      </ul>
     </div>
   </section>
 
@@ -122,32 +106,6 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 
   <!-- 04 · ПАКЕТЫ (подняли выше) -->
   <PackagesSection />
-
-  <!-- 05 · ПОДХОД -->
-  <section class="section approach theme-dark" aria-labelledby="approach-title">
-    <div class="container approach__inner">
-      <div class="approach__lead reveal">
-        <span class="index-num">03 · Подход</span>
-        <h2 id="approach-title" class="approach__statement">
-          Мы отвечаем за <span class="hl">результат</span>, а не продаём процедуры.
-        </h2>
-      </div>
-      <div class="approach__cols">
-        <div class="approach__item reveal">
-          <h3>Результат</h3>
-          <p class="muted">Обсуждаем, что реально получится именно у вас, ещё до процедуры, а не после. Если задуманное не подойдёт, скажем честно.</p>
-        </div>
-        <div class="approach__item reveal">
-          <h3>Эстетика</h3>
-          <p class="muted">Сдержанная, современная эстетика без лишнего декора. Дорого это про уместность и чистоту работы, а не про блеск.</p>
-        </div>
-        <div class="approach__item reveal">
-          <h3>Мастер</h3>
-          <p class="muted">Каждое направление ведёт специалист, который отвечает за результат и объясняет, что и зачем делает.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- 06 · МАСТЕРА -->
   <section class="section" aria-labelledby="team-title">
@@ -233,129 +191,149 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
 </BaseLayout>
 
 <style>
-  /* -------- HERO — редакционный, статичный (как NØR / trohamburger):
-     ярлык сверху, крупный заголовок снизу, плоское фото + спокойное затемнение.
-     Без мерцаний, свечения, градиентного текста и анимаций фона. -------- */
+  /* ============================================================
+     HERO — двухэтапный: бренд (этап 1) → направления (этап 2).
+     Скролл сайта заблокирован, пока гость не перешёл ко 2-му этапу.
+     ============================================================ */
   .hero {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     color: var(--ivory);
-    min-height: clamp(600px, 92svh, 960px);
+    min-height: 100svh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    gap: clamp(2rem, 6vw, 4rem);
-    padding-top: clamp(7rem, 12vw, 10rem);
-    padding-bottom: clamp(2rem, 5vw, 3.25rem);
   }
   .hero__photo { position: absolute; inset: 0; z-index: -1; }
   .hero__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 60% center;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: 60% center;
     transform: scale(1.03);
-    /* Приглушаем тёплое золото, уводим фото в чёрный — чтобы вело розовое */
-    filter: saturate(0.6) brightness(0.62) contrast(1.04);
+    filter: saturate(0.55) brightness(0.5) contrast(1.05);
   }
-  /* Затемнение до почти чёрного слева/снизу + лёгкий розовый тон поверх фото. */
   .hero__scrim {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background:
-      linear-gradient(90deg, rgba(10, 9, 12, 0.92) 0%, rgba(10, 9, 12, 0.5) 40%, rgba(10, 9, 12, 0.12) 72%),
-      linear-gradient(0deg, rgba(10, 9, 12, 0.94) 0%, rgba(10, 9, 12, 0.2) 46%, rgba(10, 9, 12, 0) 62%),
-      radial-gradient(70% 80% at 92% 18%, rgba(255, 79, 151, 0.14), rgba(255, 79, 151, 0) 60%);
+      radial-gradient(95% 90% at 50% 38%, rgba(10,9,12,0.5), rgba(10,9,12,0.92) 100%),
+      radial-gradient(60% 60% at 85% 12%, rgba(255,79,151,0.16), rgba(255,79,151,0) 60%),
+      linear-gradient(0deg, rgba(10,9,12,0.95) 0%, rgba(10,9,12,0.28) 52%, rgba(10,9,12,0.42) 100%);
   }
 
-  /* --- верхняя строка: бренд слева, скролл справа --- */
-  .hero__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
+  /* --- общий слой этапа --- */
+  .hero-stage { flex: 1; display: flex; align-items: center; }
+  .hero-stage .container { width: 100%; }
+
+  /* Без JS этапы идут друг за другом (контент доступен и листается).
+     С JS — «ворота»: этап 1 поверх всего экрана, этап 2 скрыт до клика. */
+  :global(html.js) .hero-stage--intro {
+    position: absolute; inset: 0;
+    transition: opacity 0.55s var(--ease), transform 0.7s var(--ease);
   }
-  .hero__brand,
-  .hero__scroll {
+  :global(html.js) .hero-stage--intro.is-leaving { opacity: 0; transform: scale(1.06); pointer-events: none; }
+  :global(html.js) .hero-stage--intro.is-gone { display: none; }
+  :global(html.js) .hero-stage--dirs {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(30px);
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease), visibility 0s linear 0.7s;
+  }
+  :global(html.js) .hero-stage--dirs.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: opacity 0.85s var(--ease) 0.15s, transform 0.85s var(--ease) 0.15s;
+  }
+
+  /* --- Этап 1: бренд --- */
+  .hero-intro { text-align: center; display: grid; justify-items: center; gap: clamp(1.5rem, 4vw, 2.5rem); }
+  .hero-intro__eyebrow {
     font-family: var(--font-body);
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(239, 231, 219, 0.72);
+    font-size: clamp(0.72rem, 0.68rem + 0.3vw, 0.9rem);
+    font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase;
+    color: var(--clay-soft);
+    margin: 0;
   }
-  .hero__brand-sep { color: var(--clay-soft); margin: 0 0.35em; }
-  .hero__scroll {
-    display: inline-flex;
+  .hero-intro__brand {
+    font-family: var(--font-script);
+    font-weight: 700;
+    color: var(--ivory);
+    font-size: clamp(4rem, 19vw, 16rem);
+    line-height: 0.9;
+    margin: 0;
+    letter-spacing: 0.01em;
+    text-shadow: 0 0 70px rgba(255, 79, 151, 0.28);
+  }
+  .hero-intro__enter {
+    display: inline-flex; align-items: center; gap: 0.7em;
+    font-family: var(--font-body); font-weight: 600;
+    font-size: 0.86rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--ivory);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 1em 2.1em;
+    cursor: pointer;
+    transition: border-color 0.4s var(--ease), background 0.4s var(--ease), color 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .hero-intro__enter:hover { border-color: var(--clay); background: var(--clay); color: #fff; transform: translateY(-2px); }
+  .hero-intro__enter:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 4px; }
+  .hero-intro__enter-arrow { transition: transform 0.4s var(--ease); }
+  .hero-intro__enter:hover .hero-intro__enter-arrow { transform: translateY(3px); }
+
+  /* входная анимация бренда (только с JS) */
+  :global(html.js) .hero-intro__eyebrow,
+  :global(html.js) .hero-intro__brand,
+  :global(html.js) .hero-intro__enter { animation: heroRise 1s var(--ease) backwards; }
+  :global(html.js) .hero-intro__eyebrow { animation-delay: 0.15s; }
+  :global(html.js) .hero-intro__brand { animation-delay: 0.3s; animation-duration: 1.3s; }
+  :global(html.js) .hero-intro__enter { animation-delay: 0.9s; }
+  @keyframes heroRise {
+    from { opacity: 0; transform: translateY(26px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* --- Этап 2: направления --- */
+  .hero-dirs {
+    padding-block: clamp(6rem, 13vh, 9rem) clamp(2rem, 5vh, 3rem);
+    display: grid; gap: clamp(1.5rem, 4vw, 2.5rem); align-content: center;
+  }
+  .hero-dirs__head .index-num { display: block; margin-bottom: 0.9rem; color: var(--clay-soft); }
+  .hero-dirs__title { color: var(--ivory); font-size: clamp(2rem, 1.4rem + 3vw, 3.6rem); margin: 0; }
+  .hero-dirs__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .hero-dir { border-bottom: 1px solid var(--line); }
+  .hero-dir__link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 'num title arrow' 'num summary arrow';
+    column-gap: clamp(1rem, 2.5vw, 2rem);
+    row-gap: 0.3rem;
     align-items: center;
-    gap: 0.5rem;
+    padding: clamp(0.95rem, 2.2vw, 1.5rem) 0.6rem;
+    transition: padding-left 0.4s var(--ease), background 0.4s var(--ease);
+  }
+  .hero-dir__link:hover,
+  .hero-dir__link:focus-visible { padding-left: 1.3rem; background: rgba(255, 79, 151, 0.07); outline: none; }
+  .hero-dir__num { grid-area: num; font-family: var(--font-body); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.1em; color: var(--clay-soft); }
+  .hero-dir__title { grid-area: title; font-family: var(--font-display); font-size: clamp(1.5rem, 1.1rem + 1.8vw, 2.6rem); line-height: 1.05; color: var(--ivory); transition: color 0.3s var(--ease); }
+  .hero-dir__link:hover .hero-dir__title,
+  .hero-dir__link:focus-visible .hero-dir__title { color: var(--clay-soft); }
+  .hero-dir__summary { grid-area: summary; font-size: 0.95rem; color: var(--ink-muted); max-width: 60ch; }
+  .hero-dir__arrow { grid-area: arrow; font-size: 1.4rem; color: var(--clay-soft); transition: transform 0.4s var(--ease); }
+  .hero-dir__link:hover .hero-dir__arrow,
+  .hero-dir__link:focus-visible .hero-dir__arrow { transform: translateX(6px); }
+  .hero-dirs__more {
+    justify-self: center;
+    display: inline-flex; align-items: center; gap: 0.5em;
+    font-family: var(--font-body); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-muted);
     transition: color 0.3s var(--ease);
   }
-  .hero__scroll:hover { color: var(--ivory); }
+  .hero-dirs__more:hover { color: var(--clay-soft); }
 
-  /* --- нижний блок: текст, затем ряд фактов во всю ширину --- */
-  .hero__main {
-    display: flex;
-    flex-direction: column;
-    gap: clamp(2rem, 4vw, 3rem);
+  @media (max-width: 680px) {
+    .hero-dir__link { grid-template-areas: 'num title arrow'; }
+    .hero-dir__summary { display: none; }
   }
-  .hero__text { min-width: 0; max-width: 54rem; }
-  .hero__label {
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--clay-soft);
-    margin-bottom: 1.25rem;
-  }
-  .hero__title {
-    color: var(--ivory);
-    font-size: clamp(2.3rem, 10.5vw, 9rem);
-    line-height: 0.96;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    margin: 0;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  .hero__title-accent { color: var(--clay-soft); }
-  .hero__lead {
-    max-width: 44ch;
-    margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
-    font-family: var(--font-body);
-    font-size: clamp(1.02rem, 0.95rem + 0.4vw, 1.22rem);
-    line-height: 1.55;
-    color: var(--ink-soft);
-  }
-  .hero__actions {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-top: clamp(1.75rem, 3vw, 2.5rem);
-  }
-  .hero__secondary { color: var(--ivory); }
-  .hero__secondary:hover { color: var(--clay-soft); }
-
-  .hero__facts {
-    list-style: none;
-    margin: 0;
-    padding: clamp(1.5rem, 3vw, 2rem) 0 0;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: clamp(1.25rem, 4vw, 3rem);
-    border-top: 1px solid var(--line);
-  }
-  .hero__fact {
-    display: grid;
-    gap: 0.2rem;
-    padding-left: 1rem;
-    border-left: 2px solid var(--clay);
-  }
-  .hero__fact-num { font-family: var(--font-display); font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem); font-weight: 600; color: var(--clay-soft); line-height: 1.1; }
-  .hero__fact-label { font-size: 0.84rem; letter-spacing: 0.02em; color: var(--ink-muted); }
 
   /* -------- НАПРАВЛЕНИЯ (editorial index) -------- */
   .dir-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
@@ -451,7 +429,56 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     .team-preview { grid-template-columns: 1fr; max-width: 340px; }
     .gallery__cell--tall { grid-row: span 1; }
     .hero__facts { grid-template-columns: 1fr; }
-    .hero__brand, .hero__scroll { font-size: 0.66rem; letter-spacing: 0.16em; }
-    .hero__scroll { display: none; }
   }
 </style>
+
+<script>
+  // Двухэтапный hero: блокируем прокрутку, пока гость не нажал «смотреть».
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const intro = hero?.querySelector<HTMLElement>('[data-hero-stage="intro"]');
+  const dirs = hero?.querySelector<HTMLElement>('[data-hero-stage="dirs"]');
+  const enterBtn = hero?.querySelector<HTMLElement>('[data-hero-enter]');
+  const root = document.documentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (hero && intro && dirs && enterBtn) {
+    let entered = false;
+
+    const enter = (animate = true) => {
+      if (entered) return;
+      entered = true;
+      root.classList.remove('hero-locked');
+      dirs.classList.add('is-active');
+      dirs.removeAttribute('inert');
+      dirs.setAttribute('aria-hidden', 'false');
+      intro.classList.add('is-leaving');
+      intro.setAttribute('aria-hidden', 'true');
+      intro.setAttribute('inert', '');
+      const hideIntro = () => intro.classList.add('is-gone');
+      if (animate && !reduce) setTimeout(hideIntro, 650);
+      else hideIntro();
+      const h = dirs.querySelector<HTMLElement>('.hero-dirs__title');
+      if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+    };
+
+    const hasHash = location.hash && location.hash !== '#top';
+    if (hasHash) {
+      // Глубокая ссылка (напр. /#booking) — не запираем, сразу показываем сайт.
+      enter(false);
+    } else {
+      root.classList.add('hero-locked');
+      dirs.setAttribute('inert', '');
+      window.scrollTo(0, 0);
+      enterBtn.addEventListener('click', () => enter(true));
+    }
+
+    // «Листать дальше» — плавный скролл к следующей секции.
+    const more = dirs.querySelector<HTMLAnchorElement>('[data-hero-continue]');
+    more?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const sel = more.getAttribute('href') || '';
+      const target = sel ? document.querySelector(sel) : null;
+      target?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
+    });
+  }
+</script>
