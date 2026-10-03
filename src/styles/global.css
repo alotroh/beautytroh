@@ -67,7 +67,7 @@
   --aura: var(--aura-light);
 
   /* Типографика */
-  --font-display: 'Prata', 'Times New Roman', Georgia, serif;
+  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
   --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 
   /* Ритм и сетка */
@@ -143,7 +143,7 @@ a { color: inherit; text-decoration: none; }
 /* -------- Типографика -------- */
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 400; /* Prata — один начертание, высокий контраст */
+  font-weight: 600; /* Cormorant Garamond — изящный высококонтрастный сериф */
   line-height: 1.1;
   letter-spacing: 0;
   color: var(--ink);
