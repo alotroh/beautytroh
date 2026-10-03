@@ -207,16 +207,18 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
   .hero__photo { position: absolute; inset: 0; z-index: -1; }
   .hero__img {
     width: 100%; height: 100%;
-    object-fit: cover; object-position: 60% center;
-    transform: scale(1.03);
-    filter: saturate(0.55) brightness(0.5) contrast(1.05);
+    object-fit: cover; object-position: 62% center;
+    transform: scale(1.04);
+    filter: saturate(0.5) brightness(0.62) contrast(1.03);
   }
+  /* Центральное розовое свечение (сверху) + мягкое затемнение по краям.
+     Свечение по центру даёт «живой» фон даже на узком телефоне. */
   .hero__scrim {
     position: absolute; inset: 0;
     background:
-      radial-gradient(95% 90% at 50% 38%, rgba(10,9,12,0.5), rgba(10,9,12,0.92) 100%),
-      radial-gradient(60% 60% at 85% 12%, rgba(255,79,151,0.16), rgba(255,79,151,0) 60%),
-      linear-gradient(0deg, rgba(10,9,12,0.95) 0%, rgba(10,9,12,0.28) 52%, rgba(10,9,12,0.42) 100%);
+      radial-gradient(58% 48% at 50% 50%, rgba(255,79,151,0.30), rgba(255,79,151,0) 72%),
+      radial-gradient(120% 95% at 50% 42%, rgba(10,9,12,0.3), rgba(10,9,12,0.8) 100%),
+      linear-gradient(0deg, rgba(10,9,12,0.96) 0%, rgba(10,9,12,0.22) 55%, rgba(10,9,12,0.4) 100%);
   }
 
   /* --- общий слой этапа --- */
@@ -227,68 +229,102 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
      С JS — «ворота»: этап 1 поверх всего экрана, этап 2 скрыт до клика. */
   :global(html.js) .hero-stage--intro {
     position: absolute; inset: 0;
-    transition: opacity 0.55s var(--ease), transform 0.7s var(--ease);
+    transition: opacity 1s var(--ease), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1s var(--ease);
   }
-  :global(html.js) .hero-stage--intro.is-leaving { opacity: 0; transform: scale(1.06); pointer-events: none; }
+  :global(html.js) .hero-stage--intro.is-leaving { opacity: 0; transform: scale(1.1); filter: blur(8px); pointer-events: none; }
   :global(html.js) .hero-stage--intro.is-gone { display: none; }
   :global(html.js) .hero-stage--dirs {
     opacity: 0;
     visibility: hidden;
-    transform: translateY(30px);
-    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease), visibility 0s linear 0.7s;
+    transform: translateY(44px);
+    transition: opacity 1.1s var(--ease), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s linear 1.2s;
   }
   :global(html.js) .hero-stage--dirs.is-active {
     opacity: 1;
     visibility: visible;
     transform: none;
-    transition: opacity 0.85s var(--ease) 0.15s, transform 0.85s var(--ease) 0.15s;
+    transition: opacity 1.2s var(--ease) 0.3s, transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
   }
 
-  /* --- Этап 1: бренд --- */
-  .hero-intro { text-align: center; display: grid; justify-items: center; gap: clamp(1.5rem, 4vw, 2.5rem); }
-  .hero-intro__eyebrow {
-    font-family: var(--font-body);
-    font-size: clamp(0.72rem, 0.68rem + 0.3vw, 0.9rem);
-    font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase;
-    color: var(--clay-soft);
-    margin: 0;
-  }
+  /* --- Этап 1: бренд (порядок: бренд → ярлык-тэглайн → кнопка) --- */
+  .hero-intro { text-align: center; display: grid; justify-items: center; gap: clamp(1.4rem, 3.5vw, 2.25rem); position: relative; }
   .hero-intro__brand {
+    order: 1;
     font-family: var(--font-script);
-    font-weight: 700;
+    font-weight: 400;
     color: var(--ivory);
-    font-size: clamp(4rem, 19vw, 16rem);
-    line-height: 0.9;
+    font-size: clamp(5rem, 23vw, 19rem);
+    line-height: 0.8;
     margin: 0;
-    letter-spacing: 0.01em;
-    text-shadow: 0 0 70px rgba(255, 79, 151, 0.28);
+    letter-spacing: 0.005em;
+    /* многослойное розовое свечение под надписью */
+    text-shadow:
+      0 0 36px rgba(255, 79, 151, 0.55),
+      0 2px 90px rgba(255, 79, 151, 0.5),
+      0 6px 180px rgba(255, 79, 151, 0.35);
   }
-  .hero-intro__enter {
-    display: inline-flex; align-items: center; gap: 0.7em;
-    font-family: var(--font-body); font-weight: 600;
-    font-size: 0.86rem; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--ivory);
-    background: transparent;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    padding: 1em 2.1em;
-    cursor: pointer;
-    transition: border-color 0.4s var(--ease), background 0.4s var(--ease), color 0.4s var(--ease), transform 0.4s var(--ease);
+  /* люкс-ярлык: тонкие линии по бокам, деликатный трекинг */
+  .hero-intro__eyebrow {
+    order: 2;
+    display: inline-flex; align-items: center; gap: 1.1em;
+    font-family: var(--font-body);
+    font-size: clamp(0.64rem, 0.58rem + 0.3vw, 0.8rem);
+    font-weight: 500; letter-spacing: 0.52em; text-transform: uppercase;
+    color: rgba(245, 238, 242, 0.8);
+    margin: 0;
+    padding-left: 0.52em;
   }
-  .hero-intro__enter:hover { border-color: var(--clay); background: var(--clay); color: #fff; transform: translateY(-2px); }
-  .hero-intro__enter:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 4px; }
-  .hero-intro__enter-arrow { transition: transform 0.4s var(--ease); }
-  .hero-intro__enter:hover .hero-intro__enter-arrow { transform: translateY(3px); }
+  .hero-intro__eyebrow::before,
+  .hero-intro__eyebrow::after {
+    content: ''; width: clamp(1.75rem, 6vw, 3.75rem); height: 1px;
+    background: linear-gradient(90deg, transparent, var(--clay-soft));
+  }
+  .hero-intro__eyebrow::after { background: linear-gradient(90deg, var(--clay-soft), transparent); }
 
-  /* входная анимация бренда (только с JS) */
-  :global(html.js) .hero-intro__eyebrow,
-  :global(html.js) .hero-intro__brand,
-  :global(html.js) .hero-intro__enter { animation: heroRise 1s var(--ease) backwards; }
-  :global(html.js) .hero-intro__eyebrow { animation-delay: 0.15s; }
-  :global(html.js) .hero-intro__brand { animation-delay: 0.3s; animation-duration: 1.3s; }
-  :global(html.js) .hero-intro__enter { animation-delay: 0.9s; }
+  .hero-intro__enter {
+    order: 3;
+    position: relative;
+    display: inline-flex; align-items: center; gap: 0.8em;
+    margin-top: clamp(0.5rem, 1.5vw, 1rem);
+    font-family: var(--font-body); font-weight: 600;
+    font-size: 0.82rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--ivory);
+    background: rgba(255, 79, 151, 0.08);
+    border: 1px solid rgba(255, 79, 151, 0.5);
+    border-radius: 999px;
+    padding: 1.15em 2.5em;
+    cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(255, 79, 151, 0.5);
+    animation: enterPulse 2.8s ease-in-out infinite;
+    transition: background 0.45s var(--ease), color 0.45s var(--ease),
+      border-color 0.45s var(--ease), transform 0.45s var(--ease), box-shadow 0.45s var(--ease);
+  }
+  .hero-intro__enter:hover {
+    background: var(--clay); border-color: var(--clay); color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 44px -8px rgba(255, 79, 151, 0.6);
+    animation: none;
+  }
+  .hero-intro__enter:focus-visible { outline: 2px solid var(--clay-soft); outline-offset: 4px; }
+  .hero-intro__enter-arrow { animation: enterBob 1.8s ease-in-out infinite; transition: transform 0.5s var(--ease); }
+  .hero-intro__enter:hover .hero-intro__enter-arrow { transform: translateY(4px); animation: none; }
+  @keyframes enterPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 79, 151, 0.45); }
+    70% { box-shadow: 0 0 0 18px rgba(255, 79, 151, 0); }
+  }
+  @keyframes enterBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+  /* красивое появление этапа 1 (только с JS) */
+  :global(html.js) .hero-intro__brand { animation: brandReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s backwards; }
+  :global(html.js) .hero-intro__eyebrow { animation: heroRise 1s var(--ease) 0.75s backwards; }
+  :global(html.js) .hero-intro__enter { animation: heroRise 1s var(--ease) 1s backwards, enterPulse 2.8s ease-in-out 2s infinite; }
+  :global(html.js) .hero-intro__enter:hover { animation: none; }
+  @keyframes brandReveal {
+    from { opacity: 0; transform: translateY(32px) scale(0.96); filter: blur(12px); }
+    to { opacity: 1; transform: none; filter: blur(0); }
+  }
   @keyframes heroRise {
-    from { opacity: 0; transform: translateY(26px); }
+    from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
@@ -329,6 +365,21 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
     transition: color 0.3s var(--ease);
   }
   .hero-dirs__more:hover { color: var(--clay-soft); }
+
+  /* Аккуратное поочерёдное появление заголовка и направлений на 2-м этапе */
+  :global(html.js) .hero-stage--dirs .hero-dirs__head,
+  :global(html.js) .hero-stage--dirs .hero-dir,
+  :global(html.js) .hero-stage--dirs .hero-dirs__more { opacity: 0; }
+  :global(html.js) .hero-stage--dirs.is-active .hero-dirs__head { animation: dirRise 0.8s var(--ease) 0.45s forwards; }
+  :global(html.js) .hero-stage--dirs.is-active .hero-dir {
+    animation: dirRise 0.8s var(--ease) forwards;
+    animation-delay: calc(0.65s + var(--i) * 0.13s);
+  }
+  :global(html.js) .hero-stage--dirs.is-active .hero-dirs__more { animation: dirRise 0.8s var(--ease) 1.5s forwards; }
+  @keyframes dirRise {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   @media (max-width: 680px) {
     .hero-dir__link { grid-template-areas: 'num title arrow'; }
@@ -455,7 +506,7 @@ const jsonLd = [websiteSchema(), organizationSchema({ logo: '/favicon.svg' }), b
       intro.setAttribute('aria-hidden', 'true');
       intro.setAttribute('inert', '');
       const hideIntro = () => intro.classList.add('is-gone');
-      if (animate && !reduce) setTimeout(hideIntro, 650);
+      if (animate && !reduce) setTimeout(hideIntro, 1250);
       else hideIntro();
       const h = dirs.querySelector<HTMLElement>('.hero-dirs__title');
       if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
