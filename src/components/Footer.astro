@@ -6,6 +6,8 @@
 import { SITE, NAV, CONTACTS, BUSINESS } from '../config/site.mjs';
 import { SERVICES } from '../data/services.mjs';
 const year = new Date().getFullYear();
+/** Короткий @-хэндл из ссылки Telegram (для подписи). */
+const tgHandle = CONTACTS.telegram ? '@' + CONTACTS.telegram.replace(/\/+$/, '').split('/').pop() : '';
 ---
 
 <footer class="site-footer theme-dark">
@@ -46,7 +48,7 @@ const year = new Date().getFullYear();
           <li><a href={`tel:${CONTACTS.phoneRaw}`} data-track="click_phone">{CONTACTS.phoneDisplay}</a></li>
         )}
         {CONTACTS.telegram && (
-          <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram</a></li>
+          <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram {tgHandle}</a></li>
         )}
         {CONTACTS.whatsapp && (
           <li><a href={CONTACTS.whatsapp} rel="nofollow noopener" target="_blank" data-track="click_whatsapp">WhatsApp</a></li>
@@ -55,6 +57,9 @@ const year = new Date().getFullYear();
           <li><a href={`mailto:${CONTACTS.email}`}>{CONTACTS.email}</a></li>
         )}
       </ul>
+      {BUSINESS.address.display && (
+        <p class="site-footer__addr muted">{BUSINESS.address.display}</p>
+      )}
       <p class="site-footer__hours muted">
         {BUSINESS.openingHoursDisplay.map((h) => (
           <span>{h.label}: {h.value}<br /></span>
@@ -71,12 +76,13 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
-    background: rgba(24, 16, 10, 0.55);
+    background: rgba(8, 7, 10, 0.72);
     backdrop-filter: blur(6px);
     color: var(--ivory);
     padding-block: clamp(3rem, 7vw, 5rem) 2rem;
-    border-top: 1px solid rgba(247, 240, 239, 0.1);
+    border-top: 1px solid var(--line-soft);
   }
+  .site-footer__addr { margin-top: 1.3rem; font-size: 0.9rem; max-width: 26ch; }
   .site-footer__inner {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1.2fr;

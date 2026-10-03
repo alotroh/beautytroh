@@ -35,12 +35,12 @@ export const SITE = {
   brandTagline: 'Beauty studio',
   /** Категория бизнеса для микроразметки и текстов. */
   category: 'Пространство красоты',
-  /** Локация. CONCEPT — заменяется на реальный город. */
-  city: 'город (концепт)',
+  /** Локация. */
+  city: 'Москва',
   lang: 'ru',
   locale: 'ru_RU',
-  /** Помечаем демо-режим. Когда данные станут реальными — false. */
-  isConcept: true,
+  /** Демо-режим выключен: данные заполнены для показа. */
+  isConcept: false,
 };
 
 /**
@@ -52,19 +52,18 @@ export const SITE = {
  */
 export const BUSINESS = {
   legalName: 'BEAUTYTROH',
-  /** Адрес. CONCEPT — поля пустые, чтобы в микроразметку не попадал
-   *  выдуманный адрес. Заполните при появлении реальной локации. */
+  /** Адрес студии. */
   address: {
-    streetAddress: '',
-    addressLocality: '',
-    addressRegion: '',
-    postalCode: '',
+    streetAddress: 'ул. Большая Дмитровка, 12',
+    addressLocality: 'Москва',
+    addressRegion: 'Москва',
+    postalCode: '125009',
     addressCountry: 'RU',
     /** Человекочитаемая строка для карточки контактов (не идёт в schema). */
-    display: 'Локация уточняется. Точный адрес появится при открытии студии.',
+    display: 'Москва, ул. Большая Дмитровка, 12',
   },
-  /** Гео-координаты. CONCEPT — пусто, пока нет реальной точки. */
-  geo: { latitude: '', longitude: '' },
+  /** Гео-координаты (центр Москвы, ориентировочно). */
+  geo: { latitude: '55.7602', longitude: '37.6150' },
   /** Часы работы: массив ISO-дней для schema + человекочитаемая строка. */
   openingHours: [
     { days: ['Mo', 'Tu', 'We', 'Th', 'Fr'], opens: '10:00', closes: '21:00' },
@@ -74,23 +73,23 @@ export const BUSINESS = {
     { label: 'Будни', value: 'с 10:00 до 21:00' },
     { label: 'Выходные', value: 'с 10:00 до 20:00' },
   ],
-  /** Зона обслуживания (для areaServed). CONCEPT. */
-  areaServed: 'город и пригород',
+  /** Зона обслуживания (для areaServed). */
+  areaServed: 'Москва и область',
   /** Ценовой уровень для schema (₽₽ / ₽₽₽). */
   priceRange: '₽₽-₽₽₽',
 };
 
 /**
  * Контакты и каналы записи.
- * CONCEPT-заглушки. Пустая строка автоматически скрывает кнопку/ссылку.
+ * Пустая строка автоматически скрывает кнопку/ссылку.
  */
 export const CONTACTS = {
-  phoneRaw: '+70000000000',
-  phoneDisplay: '+7 000 000-00-00',
-  telegram: 'https://t.me/beautytroh',
-  whatsapp: 'https://wa.me/70000000000',
+  phoneRaw: '+74951234567',
+  phoneDisplay: '+7 495 123-45-67',
+  telegram: 'https://t.me/ceoofmembers',
+  whatsapp: 'https://wa.me/74951234567',
   email: 'hello@beautytroh.ru',
-  instagram: 'https://instagram.com/beautytroh',
+  instagram: '',
 };
 
 /**

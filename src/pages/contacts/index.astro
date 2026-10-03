@@ -5,6 +5,8 @@ import BookingSection from '../../components/BookingSection.astro';
 import { CONTACTS, BUSINESS, SITE } from '../../config/site.mjs';
 import { beautyBusinessSchema } from '../../config/schema.mjs';
 
+const tgHandle = CONTACTS.telegram ? '@' + CONTACTS.telegram.replace(/\/+$/, '').split('/').pop() : '';
+
 const crumbs = [
   { name: 'Главная', href: '/' },
   { name: 'Контакты', href: '/contacts/' },
@@ -36,7 +38,7 @@ const jsonLd = [beautyBusinessSchema({ image: '/images/og-cover.svg' })];
               <li><a href={`tel:${CONTACTS.phoneRaw}`} data-track="click_phone">{CONTACTS.phoneDisplay}</a><span class="muted"> · телефон</span></li>
             )}
             {CONTACTS.telegram && (
-              <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram</a></li>
+              <li><a href={CONTACTS.telegram} rel="nofollow noopener" target="_blank" data-track="click_telegram">Telegram</a><span class="muted"> · {tgHandle}</span></li>
             )}
             {CONTACTS.whatsapp && (
               <li><a href={CONTACTS.whatsapp} rel="nofollow noopener" target="_blank" data-track="click_whatsapp">WhatsApp</a></li>
@@ -70,11 +72,11 @@ const jsonLd = [beautyBusinessSchema({ image: '/images/og-cover.svg' })];
         <a class="btn contacts__cta" href="#booking" data-track="click_booking">Записаться <span class="arrow" aria-hidden="true">→</span></a>
       </div>
 
-      <div class="contacts__map reveal" role="img" aria-label="Карта расположения студии, концепт: точная локация уточняется">
+      <div class="contacts__map reveal" role="img" aria-label={`Карта расположения студии BEAUTYTROH: ${BUSINESS.address.display}`}>
         <div class="map-plate">
           <span class="map-plate__pin" aria-hidden="true"></span>
-          <span class="map-plate__label">Локация уточняется</span>
-          <span class="map-plate__sub">Здесь будет интерактивная карта</span>
+          <span class="map-plate__label">{SITE.city}</span>
+          <span class="map-plate__sub">{BUSINESS.address.streetAddress}</span>
         </div>
       </div>
     </div>
@@ -130,18 +132,18 @@ const jsonLd = [beautyBusinessSchema({ image: '/images/og-cover.svg' })];
     color: rgba(247, 240, 239, 0.85);
     background-color: var(--espresso);
     background-image:
-      radial-gradient(120% 120% at 30% 20%, rgba(226, 181, 138, 0.22), rgba(226, 181, 138, 0) 60%),
-      linear-gradient(rgba(247, 240, 239, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(247, 240, 239, 0.06) 1px, transparent 1px),
-      linear-gradient(150deg, #1c130c, #33251a);
+      radial-gradient(120% 120% at 30% 20%, rgba(255, 79, 151, 0.16), rgba(255, 79, 151, 0) 60%),
+      linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(150deg, #120f16, #0b0a0e);
     background-size: auto, 40px 40px, 40px 40px, auto;
-    box-shadow: inset 0 0 0 1px rgba(247, 240, 239, 0.1);
+    box-shadow: inset 0 0 0 1px var(--line-soft);
   }
   .map-plate__pin {
     width: 14px; height: 14px;
     border-radius: 50%;
     background: var(--clay);
-    box-shadow: 0 0 0 6px rgba(189, 122, 69, 0.25);
+    box-shadow: 0 0 0 6px rgba(255, 79, 151, 0.22);
     margin: 0 auto 0.5rem;
   }
   .map-plate__label { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: var(--ivory); }
